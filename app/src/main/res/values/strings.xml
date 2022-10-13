@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Assignment</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="insert_name">Zadajte meno</string>
+    <string name="insert_bar_name">Zadajte nazov podniku</string>
+    <string name="insert_latitude">Zadajte zem. sirku podniku</string>
+    <string name="insert_longitude">Zadajte zem. dlzku podniku</string>
+    <string name="confirm">Potvrdit</string>
+    <string name="show_on_map">Ukáž na mape</string>
+    <string name="bars">Podniky</string>
+</resources>

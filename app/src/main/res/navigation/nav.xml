@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:name="androidx.navigation.fragment.NavHostFragment"
+    android:id="@+id/nav"
+    app:startDestination="@id/barsListFragment">
+
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.example.assignment.MainFragment"
+        android:label="fragment_main"
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/action_mainFragment_to_animationFragment"
+            app:destination="@id/animationFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_barsListFragment"
+            app:destination="@id/barsListFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/animationFragment"
+        android:name="com.example.assignment.AnimationFragment"
+        android:label="fragment_animation"
+        tools:layout="@layout/fragment_animation" >
+        <action
+            android:id="@+id/action_animationFragment_to_mainFragment"
+            app:destination="@id/mainFragment"
+            app:popUpTo="@id/mainFragment"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="name"
+            app:argType="string" />
+        <argument
+            android:name="barName"
+            app:argType="string" />
+        <argument
+            android:name="latitude"
+            app:argType="float" />
+        <argument
+            android:name="longitude"
+            app:argType="float" />
+    </fragment>
+    <fragment
+        android:id="@+id/barsListFragment"
+        android:name="com.example.assignment.BarsListFragment"
+        android:label="fragment_bars_list"
+        tools:layout="@layout/fragment_bars_list" >
+        <action
+            android:id="@+id/action_barsListFragment_to_mainFragment"
+            app:destination="@id/mainFragment" />
+        <action
+            android:id="@+id/action_barsListFragment_to_barDetailFragment"
+            app:destination="@id/barDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/barDetailFragment"
+        android:name="com.example.assignment.BarDetailFragment"
+        android:label="fragment_bar_detail"
+        tools:layout="@layout/fragment_bar_detail" >
+        <action
+            android:id="@+id/action_barDetailFragment_to_barsListFragment"
+            app:destination="@id/barsListFragment" />
+    </fragment>
+</navigation>
