@@ -30,13 +30,35 @@ class BarsListFragment : Fragment() {
     private var _binding: FragmentBarsListBinding? = null
     private val binding get() = _binding!!
 
+    private lateinit var barData: BarData
+    private lateinit var barListAdapter: BarsListAdapter
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         _binding = FragmentBarsListBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        lateinit var jsonString: String
+        try {
+            jsonString = context?.assets?.open("pubs.json")
+                ?.bufferedReader()
+                .use { it?.readText() ?: "" }
+            barData = Json.decodeFromString(jsonString)
+            val elements = barData.elements.filter {
+                it.tags.name != null }
+                .toMutableList()
+            barListAdapter = BarsListAdapter(elements, this)
+
+        } catch (ioException: IOException) {
+            println(ioException)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -44,23 +66,23 @@ class BarsListFragment : Fragment() {
 
         val recyclerViewBarList: RecyclerView = binding.recyclerViewBarsList
         val progressBar: ProgressBar = binding.progressBar
+        val floatingActionButtonSort = binding.floatingActionButtonSort
+
+        floatingActionButtonSort.setOnClickListener {
+            barListAdapter = BarsListAdapter(
+                barData.elements.sortedBy { it.tags.name }
+                    .filter { it.tags.name != null }
+                    .toMutableList(),
+                this
+            )
+            recyclerViewBarList.adapter = barListAdapter
+        }
 
         recyclerViewBarList.layoutManager = LinearLayoutManager(context)
-
-
-        lateinit var jsonString: String
-        try {
-            jsonString = context?.assets?.open("pubs.json")
-                ?.bufferedReader()
-                .use { it?.readText() ?: "" }
-            val barData = Json.decodeFromString<BarData>(jsonString)
-            recyclerViewBarList.adapter = BarsListAdapter(barData, this)
-
-            println(barData.elements.first().id)
-
-        } catch (ioException: IOException) {
-            println(ioException)
+        if (recyclerViewBarList.adapter == null) {
+            recyclerViewBarList.adapter = barListAdapter
         }
+
         progressBar.visibility = View.INVISIBLE
     }
 

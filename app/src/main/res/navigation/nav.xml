@@ -62,5 +62,11 @@
         <action
             android:id="@+id/action_barDetailFragment_to_barsListFragment"
             app:destination="@id/barsListFragment" />
+        <argument
+            android:name="tags"
+            app:argType="com.example.assignment.common.Tags" />
+        <argument
+            android:name="removeItem"
+            app:argType="com.example.assignment.RemoveItemHelper" />
     </fragment>
 </navigation>

@@ -1,9 +1,12 @@
 package com.example.assignment.common
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
+@Parcelize
 data class Tags(
     val access: String? = null,
     @SerialName("addr:city")
@@ -131,4 +134,4 @@ data class Tags(
     val url: String? = null,
     val website: String? = null,
     val wheelchair: String? = null
-)
+): Parcelable
