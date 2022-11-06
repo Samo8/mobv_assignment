@@ -6,15 +6,15 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
-import com.example.assignment.common.BarData
 import com.example.assignment.common.Element
-import kotlinx.parcelize.Parcelize
+import com.example.assignment.viewmodels.PubDataViewModel
 
 class BarsListAdapter(
-    private val elements: MutableList<Element>,
+    private val pubDataViewModel: PubDataViewModel,
     private val barsListFragment: BarsListFragment,
 ) :
     RecyclerView.Adapter<BarsListAdapter.ViewHolder>() {
+    private val elements = pubDataViewModel.pubData.elements
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val textView: TextView

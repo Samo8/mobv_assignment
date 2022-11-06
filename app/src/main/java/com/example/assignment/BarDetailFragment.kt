@@ -11,8 +11,6 @@ import com.example.assignment.databinding.FragmentAnimationBinding
 import com.example.assignment.databinding.FragmentBarDetailBinding
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val TAGS = "tags"
 private const val REMOVE_ITEM = "removeItem"
 
