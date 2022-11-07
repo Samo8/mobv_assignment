@@ -24,7 +24,6 @@ object Server {
 
     private val tag = Server::class.java.name
     suspend fun post(): PubData = withContext(Dispatchers.IO) {
-        Log.d(tag, "Thread is ${Thread.currentThread().name}")
         val request = PubsService.PostRequest(
             collection = "bars",
             database = "mobvapp",
@@ -34,7 +33,6 @@ object Server {
         val response = pubsService.post(request)
         if (response.isSuccessful) {
             val body = response.body()!!
-            println(body.elements)
             return@withContext body
         } else {
             throw Exception(response.errorBody()?.charStream()?.readText())

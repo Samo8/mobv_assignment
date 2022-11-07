@@ -8,7 +8,7 @@ import kotlinx.serialization.SerialName
 @Entity(tableName = "tag")
 data class TagsRoom(
     @PrimaryKey(autoGenerate = true)
-//    @ColumnInfo(name = "tagsId")
+    @ColumnInfo(name = "tagsId")
     val id: Int = 0,
     @ColumnInfo
     val bar: String?,

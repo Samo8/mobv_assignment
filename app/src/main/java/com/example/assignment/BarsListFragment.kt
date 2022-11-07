@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.assignment.common.TagsRoom
@@ -52,21 +53,12 @@ class BarsListFragment : Fragment() {
         barListAdapter = BarsListAdapter(barDataViewModel, this)
 
         val barListFragment = this
+
         CoroutineScope(Dispatchers.Main).launch {
             val data = Server.post()
             barDataViewModel.pubData = data
 
             pubsDBViewModel.addPubs(barDataViewModel.pubData.elements)
-
-//            val elem = barDataViewModel.pubData.elements[0]
-
-//            val tagsRoom = TagsRoom(
-//                bar = elem.tags.bar,
-//                email = elem.tags.email,
-//                name = elem.tags.name,
-//                url = elem.tags.url
-//            )
-//            pubsDBViewModel.addPubItem(id = elem.id, type = elem.type, lon = elem.lon, lat = elem.lat, tags = tagsRoom)
 
             barListAdapter = BarsListAdapter(barDataViewModel, barListFragment)
             recyclerViewBarList.adapter = barListAdapter
@@ -80,7 +72,14 @@ class BarsListFragment : Fragment() {
         val progressBar: ProgressBar = binding.progressBar
         val floatingActionButtonSort = binding.floatingActionButtonSort
 
+        pubsDBViewModel.allItems.observe(this.viewLifecycleOwner) {
+                items -> println(items)
+        }
+
         floatingActionButtonSort.setOnClickListener {
+            CoroutineScope(Dispatchers.Main).launch {
+                pubsDBViewModel.deletePub(pubsDBViewModel.allItems.value!![0])
+            }
 //            barListAdapter = BarsListAdapter(
 //                barDataViewModel.pubData!!.elements.sortedBy { it.tags.name }
 //                    .filter { it.tags.name != null }

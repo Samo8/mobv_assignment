@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:name="androidx.navigation.fragment.NavHostFragment"
     android:id="@+id/nav"
-    app:startDestination="@id/barsListFragment">
+    app:startDestination="@id/registrationFragment">
 
     <fragment
         android:id="@+id/mainFragment"
@@ -68,5 +68,29 @@
         <argument
             android:name="removeItem"
             app:argType="com.example.assignment.RemoveItemHelper" />
+    </fragment>
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.assignment.LoginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login" >
+        <action
+            android:id="@+id/action_loginFragment_to_registrationFragment"
+            app:destination="@id/registrationFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_barsListFragment"
+            app:destination="@id/barsListFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/registrationFragment"
+        android:name="com.example.assignment.RegistrationFragment"
+        android:label="fragment_registration"
+        tools:layout="@layout/fragment_registration" >
+        <action
+            android:id="@+id/action_registrationFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_registrationFragment_to_barsListFragment"
+            app:destination="@id/barsListFragment" />
     </fragment>
 </navigation>

@@ -9,4 +9,8 @@
     <string name="confirm">Potvrdit</string>
     <string name="show_on_map">Ukáž na mape</string>
     <string name="bars">Podniky</string>
+    <string name="password">Heslo</string>
+    <string name="user_name">Používateľské meno</string>
+    <string name="register">Registruj</string>
+    <string name="login">Prihlasit</string>
 </resources>

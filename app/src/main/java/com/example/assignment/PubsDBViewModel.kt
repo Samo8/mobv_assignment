@@ -1,9 +1,6 @@
 package com.example.assignment
 
-
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.example.assignment.common.Element
 import com.example.assignment.common.ElementRoom
 import com.example.assignment.common.TagsRoom
@@ -11,6 +8,8 @@ import com.example.assignment.dao.ElementDao
 import kotlinx.coroutines.launch
 
 class PubsDBViewModel(private val pubDao: ElementDao): ViewModel() {
+    val allItems: LiveData<List<ElementRoom>> = pubDao.getAllPubs().asLiveData()
+
     private fun insertPub(pub: ElementRoom) {
         viewModelScope.launch {
             pubDao.insert(pub)
@@ -27,7 +26,11 @@ class PubsDBViewModel(private val pubDao: ElementDao): ViewModel() {
         )
     }
 
-    fun addPubs(pubs: MutableList<Element>) {
+    suspend fun deletePub(element: ElementRoom) {
+        pubDao.delete(element)
+    }
+
+    fun addPubs(pubs: List<Element>) {
         for (pub in pubs) {
             val tagsRoom = TagsRoom(
                 bar = pub.tags.bar,
