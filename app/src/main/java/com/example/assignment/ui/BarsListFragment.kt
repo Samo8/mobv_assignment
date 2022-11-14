@@ -1,4 +1,4 @@
-package com.example.assignment
+package com.example.assignment.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,20 +7,20 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.LiveData
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.assignment.common.TagsRoom
+import com.example.assignment.PubsApplication
+import com.example.assignment.PubsDBViewModel
+import com.example.assignment.PubsViewModelFactory
+import com.example.assignment.Server
+import com.example.assignment.common.PubData
 import com.example.assignment.databinding.FragmentBarsListBinding
-import com.example.assignment.viewmodels.PubDataViewModel
+import com.example.assignment.ui.viewmodels.PubDataViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
-import java.io.IOException
 
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
 class BarsListFragment : Fragment() {
     private var _binding: FragmentBarsListBinding? = null
@@ -28,7 +28,6 @@ class BarsListFragment : Fragment() {
 
     private val barDataViewModel: PubDataViewModel by activityViewModels()
     private lateinit var barListAdapter: BarsListAdapter
-
     private lateinit var recyclerViewBarList: RecyclerView
 
     private val pubsDBViewModel: PubsDBViewModel by activityViewModels {
@@ -42,7 +41,6 @@ class BarsListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
         _binding = FragmentBarsListBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -51,35 +49,55 @@ class BarsListFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         barListAdapter = BarsListAdapter(barDataViewModel, this)
-
-        val barListFragment = this
-
-        CoroutineScope(Dispatchers.Main).launch {
-            val data = Server.post()
-            barDataViewModel.pubData = data
-
-            pubsDBViewModel.addPubs(barDataViewModel.pubData.elements)
-
-            barListAdapter = BarsListAdapter(barDataViewModel, barListFragment)
-            recyclerViewBarList.adapter = barListAdapter
-        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         recyclerViewBarList = binding.recyclerViewBarsList
+        recyclerViewBarList.adapter = barListAdapter
+
         val progressBar: ProgressBar = binding.progressBar
         val floatingActionButtonSort = binding.floatingActionButtonSort
 
+        val barListFragment = this
+
         pubsDBViewModel.allItems.observe(this.viewLifecycleOwner) {
-                items -> println(items)
+                items ->
+                    when (items.isEmpty()) {
+                        true -> {
+                            CoroutineScope(Dispatchers.Main).launch {
+                                val data = Server.post()
+
+                                barDataViewModel.pubData = data
+                                pubsDBViewModel.addPubs(barDataViewModel.pubData.elements)
+
+                                barListAdapter = BarsListAdapter(barDataViewModel, barListFragment)
+                                recyclerViewBarList.adapter = barListAdapter
+                            }
+                        }
+                        else -> {
+                            val data = items.toMutableList()
+
+                            val elements = data.map { it.toElement() }
+
+                            barDataViewModel.pubData = PubData(elements.toMutableList())
+                            barListAdapter = BarsListAdapter(barDataViewModel, barListFragment)
+                            recyclerViewBarList.adapter = barListAdapter
+                        }
+                    }
         }
 
         floatingActionButtonSort.setOnClickListener {
-            CoroutineScope(Dispatchers.Main).launch {
-                pubsDBViewModel.deletePub(pubsDBViewModel.allItems.value!![0])
-            }
+            findNavController().navigate(
+                BarsListFragmentDirections.actionBarsListFragmentToAddFriendFragment()
+            )
+
+//            CoroutineScope(Dispatchers.Main).launch {
+//                pubsDBViewModel.deletePub(pubsDBViewModel.allItems.value!![0])
+//            }
+
+
 //            barListAdapter = BarsListAdapter(
 //                barDataViewModel.pubData!!.elements.sortedBy { it.tags.name }
 //                    .filter { it.tags.name != null }
@@ -100,16 +118,5 @@ class BarsListFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    companion object {
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            BarsListFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
     }
 }

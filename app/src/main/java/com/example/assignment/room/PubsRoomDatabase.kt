@@ -1,11 +1,11 @@
-package com.example.assignment
+package com.example.assignment.room
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.assignment.common.ElementRoom
-import com.example.assignment.dao.ElementDao
+import com.example.assignment.room.dao.ElementDao
+import com.example.assignment.room.model.ElementRoom
 
 @Database(entities = [ElementRoom::class], version = 1, exportSchema = false)
 abstract class PubsRoomDatabase: RoomDatabase() {

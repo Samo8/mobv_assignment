@@ -1,4 +1,4 @@
-package com.example.assignment.viewmodels
+package com.example.assignment.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import com.example.assignment.common.PubData

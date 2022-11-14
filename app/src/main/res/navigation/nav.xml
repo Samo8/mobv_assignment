@@ -5,11 +5,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:name="androidx.navigation.fragment.NavHostFragment"
     android:id="@+id/nav"
-    app:startDestination="@id/registrationFragment">
+    app:startDestination="@id/loginFragment">
 
     <fragment
         android:id="@+id/mainFragment"
-        android:name="com.example.assignment.MainFragment"
+        android:name="com.example.assignment.ui.MainFragment"
         android:label="fragment_main"
         tools:layout="@layout/fragment_main" >
         <action
@@ -21,7 +21,7 @@
     </fragment>
     <fragment
         android:id="@+id/animationFragment"
-        android:name="com.example.assignment.AnimationFragment"
+        android:name="com.example.assignment.ui.AnimationFragment"
         android:label="fragment_animation"
         tools:layout="@layout/fragment_animation" >
         <action
@@ -44,7 +44,7 @@
     </fragment>
     <fragment
         android:id="@+id/barsListFragment"
-        android:name="com.example.assignment.BarsListFragment"
+        android:name="com.example.assignment.ui.BarsListFragment"
         android:label="fragment_bars_list"
         tools:layout="@layout/fragment_bars_list" >
         <action
@@ -53,10 +53,13 @@
         <action
             android:id="@+id/action_barsListFragment_to_barDetailFragment"
             app:destination="@id/barDetailFragment" />
+        <action
+            android:id="@+id/action_barsListFragment_to_addFriendFragment"
+            app:destination="@id/addFriendFragment" />
     </fragment>
     <fragment
         android:id="@+id/barDetailFragment"
-        android:name="com.example.assignment.BarDetailFragment"
+        android:name="com.example.assignment.ui.BarDetailFragment"
         android:label="fragment_bar_detail"
         tools:layout="@layout/fragment_bar_detail" >
         <action
@@ -71,7 +74,7 @@
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.example.assignment.LoginFragment"
+        android:name="com.example.assignment.ui.LoginFragment"
         android:label="fragment_login"
         tools:layout="@layout/fragment_login" >
         <action
@@ -83,7 +86,7 @@
     </fragment>
     <fragment
         android:id="@+id/registrationFragment"
-        android:name="com.example.assignment.RegistrationFragment"
+        android:name="com.example.assignment.ui.RegistrationFragment"
         android:label="fragment_registration"
         tools:layout="@layout/fragment_registration" >
         <action
@@ -91,6 +94,15 @@
             app:destination="@id/loginFragment" />
         <action
             android:id="@+id/action_registrationFragment_to_barsListFragment"
+            app:destination="@id/barsListFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addFriendFragment"
+        android:name="com.example.assignment.AddFriendFragment"
+        android:label="fragment_add_friend"
+        tools:layout="@layout/fragment_add_friend" >
+        <action
+            android:id="@+id/action_addFriendFragment_to_barsListFragment"
             app:destination="@id/barsListFragment" />
     </fragment>
 </navigation>

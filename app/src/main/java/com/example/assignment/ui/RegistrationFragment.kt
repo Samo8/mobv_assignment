@@ -1,5 +1,7 @@
-package com.example.assignment
+package com.example.assignment.ui
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,7 +11,9 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.example.assignment.server.MpageServer
 import com.example.assignment.databinding.FragmentRegistrationBinding
+import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -58,7 +62,12 @@ class RegistrationFragment : Fragment() {
             } else {
                 CoroutineScope(Dispatchers.Main).launch {
                     try {
-                        AuthServer.register(username, password)
+                        val response = MpageServer.register(username, password)
+
+                        val preferences: SharedPreferences? =
+                            activity?.getSharedPreferences("BAR_APP", Context.MODE_PRIVATE)
+                        val authData = Gson().toJson(response)
+                        preferences?.edit()?.putString("auth_data", authData)?.apply()
                     } catch (e: Exception) {
                         Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
                     }
@@ -66,6 +75,11 @@ class RegistrationFragment : Fragment() {
             }
         }
 
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun validatePasswords(password: String, passwordRepeat: String): Boolean {

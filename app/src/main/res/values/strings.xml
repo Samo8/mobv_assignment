@@ -13,4 +13,7 @@
     <string name="user_name">Používateľské meno</string>
     <string name="register">Registruj</string>
     <string name="login">Prihlasit</string>
+    <string name="user_name_or_password_empty">Používateľské meno alebo heslo sú prázdne</string>
+    <string name="firend_name">Meno kamarata</string>
+    <string name="add_friend">Pridat kamarata</string>
 </resources>

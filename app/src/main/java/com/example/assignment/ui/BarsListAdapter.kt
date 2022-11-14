@@ -1,4 +1,4 @@
-package com.example.assignment
+package com.example.assignment.ui
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,11 +6,12 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
-import com.example.assignment.common.Element
-import com.example.assignment.viewmodels.PubDataViewModel
+import com.example.assignment.R
+import com.example.assignment.RemoveItemHelper
+import com.example.assignment.ui.viewmodels.PubDataViewModel
 
 class BarsListAdapter(
-    private val pubDataViewModel: PubDataViewModel,
+    pubDataViewModel: PubDataViewModel,
     private val barsListFragment: BarsListFragment,
 ) :
     RecyclerView.Adapter<BarsListAdapter.ViewHolder>() {

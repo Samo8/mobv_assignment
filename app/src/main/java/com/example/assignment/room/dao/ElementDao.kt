@@ -1,8 +1,8 @@
-package com.example.assignment.dao
+package com.example.assignment.room.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.example.assignment.common.ElementRoom
+import com.example.assignment.room.model.ElementRoom
 import kotlinx.coroutines.flow.Flow
 
 @Dao

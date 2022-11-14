@@ -2,9 +2,9 @@ package com.example.assignment
 
 import androidx.lifecycle.*
 import com.example.assignment.common.Element
-import com.example.assignment.common.ElementRoom
-import com.example.assignment.common.TagsRoom
-import com.example.assignment.dao.ElementDao
+import com.example.assignment.room.model.ElementRoom
+import com.example.assignment.room.model.TagsRoom
+import com.example.assignment.room.dao.ElementDao
 import kotlinx.coroutines.launch
 
 class PubsDBViewModel(private val pubDao: ElementDao): ViewModel() {
@@ -42,7 +42,7 @@ class PubsDBViewModel(private val pubDao: ElementDao): ViewModel() {
         }
     }
 
-    fun addPubItem(id: Long, type: String, lat: Double, lon: Double, tags: TagsRoom) {
+    private fun addPubItem(id: Long, type: String, lat: Double, lon: Double, tags: TagsRoom) {
         val pub = getNewPubEntry(id, lat, lon, type, tags)
         insertPub(pub)
     }

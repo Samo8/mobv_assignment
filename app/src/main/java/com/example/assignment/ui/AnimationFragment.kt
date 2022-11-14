@@ -1,4 +1,4 @@
-package com.example.assignment
+package com.example.assignment.ui
 
 import android.content.Intent
 import android.net.Uri

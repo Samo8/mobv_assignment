@@ -1,6 +1,7 @@
 package com.example.assignment.common
 
 import android.os.Parcelable
+import com.example.assignment.room.model.TagsRoom
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
