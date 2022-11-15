@@ -11,6 +11,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.example.assignment.auth.AuthServer
 import com.example.assignment.server.MpageServer
 import com.example.assignment.databinding.FragmentRegistrationBinding
 import com.google.gson.Gson
@@ -62,7 +63,7 @@ class RegistrationFragment : Fragment() {
             } else {
                 CoroutineScope(Dispatchers.Main).launch {
                     try {
-                        val response = MpageServer.register(username, password)
+                        val response = AuthServer.register(username, password)
 
                         val preferences: SharedPreferences? =
                             activity?.getSharedPreferences("BAR_APP", Context.MODE_PRIVATE)

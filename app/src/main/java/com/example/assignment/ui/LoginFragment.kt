@@ -1,7 +1,5 @@
 package com.example.assignment.ui
 
-import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -12,9 +10,9 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
-import com.example.assignment.server.MpageServer
 import com.example.assignment.R
-import com.example.assignment.data.models.AuthData
+import com.example.assignment.SessionManager
+import com.example.assignment.auth.AuthServer
 import com.example.assignment.databinding.FragmentLoginBinding
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
@@ -24,9 +22,13 @@ import kotlinx.coroutines.launch
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
+    private lateinit var sessionManager: SessionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+//        sessionManager = SessionManager(context)
+        sessionManager = SessionManager(context)
     }
 
     override fun onCreateView(
@@ -40,13 +42,9 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val preferences: SharedPreferences? =
-            activity?.getSharedPreferences("BAR_APP", Context.MODE_PRIVATE)
-        val authData = preferences?.getString("auth_data", null)
-
+        val authData = sessionManager.fetchAuthData()
         if (authData != null) {
-            val res = Gson().fromJson(authData, AuthData::class.java)
-            Log.i("auth data", res.access)
+            Log.i("auth data", authData.access)
             findNavController().navigate(
                 LoginFragmentDirections.actionLoginFragmentToBarsListFragment()
             )
@@ -71,10 +69,9 @@ class LoginFragment : Fragment() {
             } else {
                 CoroutineScope(Dispatchers.Main).launch {
                     try {
-                        val loginData = MpageServer.login(username, password)
+                        val loginData = AuthServer.login(username, password)
 
-                        val serializedData = Gson().toJson(loginData)
-                        preferences?.edit()?.putString("auth_data", serializedData)?.apply()
+                        sessionManager.saveAuthData(loginData)
 
                         findNavController().navigate(
                             LoginFragmentDirections.actionLoginFragmentToBarsListFragment()

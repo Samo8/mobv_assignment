@@ -2,6 +2,7 @@ package com.example.assignment
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build.VERSION_CODES.S
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -21,10 +22,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-
 class AddFriendFragment : Fragment() {
     private var _binding: FragmentAddFriendBinding? = null
     private val binding get() = _binding!!
+    private lateinit var sessionManager: SessionManager
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        sessionManager = SessionManager(context)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -58,7 +64,7 @@ class AddFriendFragment : Fragment() {
 
                         if (authDataString != null) {
                             val authData = Gson().fromJson(authDataString, AuthData::class.java)
-                            MpageServer.addFriend(authData, friendName)
+                            MpageServer.addFriend(authData, friendName, sessionManager)
                             Toast.makeText(context, "Kamarat uspesne pridany", Toast.LENGTH_SHORT).show()
                         }
                     }
