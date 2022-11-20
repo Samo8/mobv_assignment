@@ -1,7 +1,6 @@
-package com.example.assignment
+package com.example.assignment.pub_detail
 
-import android.util.Log
-import com.example.assignment.common.PubData
+import com.example.assignment.pub_detail.model.PubDetail
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -9,8 +8,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object Server {
-    private const val URL = "https://data.mongodb-api.com"
-    private val pubsService: PubsService
+    private const val URL = "https://overpass-api.de"
+    private val pubDetailService: PubDetailService
 
     init {
         val client = OkHttpClient.Builder().build()
@@ -19,18 +18,14 @@ object Server {
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .build()
-        pubsService = retrofit.create(PubsService::class.java)
+        pubDetailService = retrofit.create(PubDetailService::class.java)
     }
 
-    private val tag = Server::class.java.name
-    suspend fun post(): PubData = withContext(Dispatchers.IO) {
-        val request = PubsService.PostRequest(
-            collection = "bars",
-            database = "mobvapp",
-            dataSource = "Cluster0"
+    suspend fun fetchPubDetail(pubId: String): PubDetail = withContext(Dispatchers.IO) {
+        val response = pubDetailService.fetchPubDetail(
+            data = "[out:json];node(${pubId});out body;>;out skel;"
         )
-
-        val response = pubsService.post(request)
+        println("URL:" + response.raw().request().url())
         if (response.isSuccessful) {
             val body = response.body()!!
             return@withContext body

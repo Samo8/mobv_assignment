@@ -1,32 +1,37 @@
 package com.example.assignment.ui
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.fragment.findNavController
-import com.example.assignment.RemoveItemHelper
-import com.example.assignment.common.Tags
-import com.example.assignment.databinding.FragmentAnimationBinding
+import com.example.assignment.R
+import com.example.assignment.pub_detail.Server
 import com.example.assignment.databinding.FragmentBarDetailBinding
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-private const val TAGS = "tags"
-private const val REMOVE_ITEM = "removeItem"
+private const val PUB_ID = "id"
+private const val PEOPLE_PRESENT_COUNT = "peoplePresentCount"
 
 class BarDetailFragment : Fragment() {
-    private var tags: Tags? = null
-    private var removeItemHelper: RemoveItemHelper? = null
+    private var pubId: String? = null
+    private var peoplePresentCount: String? = null
 
     private var _binding: FragmentBarDetailBinding? = null
     private val binding get() = _binding!!
 
+    private var lat: Double? = null
+    private var lon: Double? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            tags = it.getParcelable(TAGS)
-            removeItemHelper = it.getParcelable(REMOVE_ITEM)
+            pubId = it.getString(PUB_ID)
+            peoplePresentCount = it.getString(PEOPLE_PRESENT_COUNT)
         }
     }
 
@@ -38,35 +43,55 @@ class BarDetailFragment : Fragment() {
         return binding.root
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val floatingButton: FloatingActionButton = binding.floatingActionButtonRemoveBar
-        floatingButton.setOnClickListener {
-            if (removeItemHelper != null) {
-                removeItemHelper!!.remove()
-                findNavController().popBackStack()
+        val textViewBarName = binding.tvBarName
+        val textViewStreet = binding.tvStreet
+        val textViewCapacity = binding.tvCapacity
+        val textViewPeoplePresentCount = binding.textViewPeoplePresentCount
+        val buttonShowOnMap = binding.buttonShowOnMap
+        val progressBarPubDetail = binding.progressBarPubDetail
+
+        textViewPeoplePresentCount.text = String.format("%s: %s",
+            getString(R.string.people_count), peoplePresentCount)
+        buttonShowOnMap.visibility = View.INVISIBLE
+        progressBarPubDetail.visibility = View.VISIBLE
+
+        buttonShowOnMap.setOnClickListener {
+            if (lat != null && lon != null) {
+                val mapUri: Uri = Uri.parse("geo:10,0?q=${lat},${lon}")
+                val mapIntent = Intent(Intent.ACTION_VIEW, mapUri)
+                mapIntent.setPackage("com.google.android.apps.maps")
+                startActivity(mapIntent)
             }
         }
 
-        binding.tvBarName.text = tags?.name
-        binding.tvStreet.text = tags?.addrStreet
-        binding.tvCapacity.text = tags?.capacity
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                val response = Server.fetchPubDetail(pubId!!)
+
+                val pubDetail = response.elements.first()
+
+                lat = pubDetail.lat
+                lon = pubDetail.lon
+
+                buttonShowOnMap.visibility = View.VISIBLE
+                progressBarPubDetail.visibility = View.GONE
+
+                textViewBarName.text = pubDetail.tags.name
+                textViewStreet.text = pubDetail.tags.addrStreet
+                textViewCapacity.text = pubDetail.tags.capacity
+            } catch (e: Exception) {
+                println(e.toString())
+            }
+        }
     }
 
-    companion object {
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            BarDetailFragment().apply {
-                arguments = Bundle().apply {
-                    putString(TAGS, param1)
-                }
-            }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+        lat = null
+        lon = null
     }
 }

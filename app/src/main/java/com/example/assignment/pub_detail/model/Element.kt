@@ -1,4 +1,4 @@
-package com.example.assignment.common
+package com.example.assignment.pub_detail.model
 
 import kotlinx.serialization.Serializable
 

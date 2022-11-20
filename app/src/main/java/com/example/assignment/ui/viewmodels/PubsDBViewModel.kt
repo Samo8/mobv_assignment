@@ -1,54 +1,51 @@
 package com.example.assignment
 
 import androidx.lifecycle.*
-import com.example.assignment.common.Element
-import com.example.assignment.room.model.ElementRoom
-import com.example.assignment.room.model.TagsRoom
-import com.example.assignment.room.dao.ElementDao
+import com.example.assignment.common.PubData
+import com.example.assignment.room.dao.PubDao
+import com.example.assignment.room.model.PubRoom
 import kotlinx.coroutines.launch
 
-class PubsDBViewModel(private val pubDao: ElementDao): ViewModel() {
-    val allItems: LiveData<List<ElementRoom>> = pubDao.getAllPubs().asLiveData()
+class PubsDBViewModel(private val pubDao: PubDao): ViewModel() {
+    val allItems: LiveData<List<PubRoom>> = pubDao.getAllPubs().asLiveData()
 
-    private fun insertPub(pub: ElementRoom) {
+    private fun insertPub(pub: PubRoom) {
         viewModelScope.launch {
             pubDao.insert(pub)
         }
     }
 
-    private fun getNewPubEntry(id: Long, lat: Double, lon: Double, type: String, tags: TagsRoom): ElementRoom {
-        return ElementRoom(
-            id = id,
-            lat = lat,
-            lon = lon,
-            type = type,
-            tags = tags,
-        )
-    }
+//    suspend fun deletePub(element: PubRoom) {
+//        pubDao.delete(element)
+//    }
 
-    suspend fun deletePub(element: ElementRoom) {
-        pubDao.delete(element)
-    }
-
-    fun addPubs(pubs: List<Element>) {
+    fun addPubs(pubs: List<PubData>) {
         for (pub in pubs) {
-            val tagsRoom = TagsRoom(
-                bar = pub.tags.bar,
-                email = pub.tags.email,
-                name = pub.tags.name,
-                url = pub.tags.url
+            addPubItem(
+                id = pub.bar_id, name = pub.bar_name, lat = pub.lat, lon = pub.lon,
+                type = pub.bar_type, users = pub.users, lastUpdate = pub.last_update
             )
-            addPubItem(id = pub.id, type = pub.type, lon = pub.lon, lat = pub.lat, tags = tagsRoom)
         }
     }
 
-    private fun addPubItem(id: Long, type: String, lat: Double, lon: Double, tags: TagsRoom) {
-        val pub = getNewPubEntry(id, lat, lon, type, tags)
+    private fun addPubItem(
+        id: String, name: String, lat: String, lon: String,
+        type: String, users: String, lastUpdate: String
+    ) {
+        val pub = PubRoom(
+            id = id,
+            name = name,
+            lat = lat,
+            lon = lon,
+            type = type,
+            users = users,
+            lastUpdate = lastUpdate,
+        )
         insertPub(pub)
     }
 }
 
-class PubsViewModelFactory(private val pubDao: ElementDao) : ViewModelProvider.Factory {
+class PubsViewModelFactory(private val pubDao: PubDao) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(PubsDBViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")

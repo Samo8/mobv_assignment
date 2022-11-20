@@ -66,11 +66,11 @@
             android:id="@+id/action_barDetailFragment_to_barsListFragment"
             app:destination="@id/barsListFragment" />
         <argument
-            android:name="tags"
-            app:argType="com.example.assignment.common.Tags" />
+            android:name="id"
+            app:argType="string" />
         <argument
-            android:name="removeItem"
-            app:argType="com.example.assignment.RemoveItemHelper" />
+            android:name="peoplePresentCount"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/loginFragment"

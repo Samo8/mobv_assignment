@@ -10,12 +10,9 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.assignment.PubsApplication
-import com.example.assignment.PubsDBViewModel
-import com.example.assignment.PubsViewModelFactory
-import com.example.assignment.Server
-import com.example.assignment.common.PubData
+import com.example.assignment.*
 import com.example.assignment.databinding.FragmentBarsListBinding
+import com.example.assignment.server.MpageServer
 import com.example.assignment.ui.viewmodels.PubDataViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +23,7 @@ class BarsListFragment : Fragment() {
     private var _binding: FragmentBarsListBinding? = null
     private val binding get() = _binding!!
 
+    private lateinit var sessionManager: SessionManager
     private val barDataViewModel: PubDataViewModel by activityViewModels()
     private lateinit var barListAdapter: BarsListAdapter
     private lateinit var recyclerViewBarList: RecyclerView
@@ -33,7 +31,7 @@ class BarsListFragment : Fragment() {
     private val pubsDBViewModel: PubsDBViewModel by activityViewModels {
         PubsViewModelFactory(
             (activity?.application as PubsApplication).database
-                .elementDao()
+                .pubDao()
         )
     }
 
@@ -48,6 +46,7 @@ class BarsListFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        sessionManager = SessionManager(context)
         barListAdapter = BarsListAdapter(barDataViewModel, this)
     }
 
@@ -67,10 +66,13 @@ class BarsListFragment : Fragment() {
                     when (items.isEmpty()) {
                         true -> {
                             CoroutineScope(Dispatchers.Main).launch {
-                                val data = Server.post()
+                                val data = MpageServer.fetchBarList(
+                                    authData = sessionManager.fetchAuthData(),
+                                    sessionManager = sessionManager,
+                                )
 
-                                barDataViewModel.pubData = data
-                                pubsDBViewModel.addPubs(barDataViewModel.pubData.elements)
+                                barDataViewModel.updatePubData(data)
+                                pubsDBViewModel.addPubs(barDataViewModel.pubData)
 
                                 barListAdapter = BarsListAdapter(barDataViewModel, barListFragment)
                                 recyclerViewBarList.adapter = barListAdapter
@@ -79,9 +81,9 @@ class BarsListFragment : Fragment() {
                         else -> {
                             val data = items.toMutableList()
 
-                            val elements = data.map { it.toElement() }
+                            val pubs = data.map { it.toPubData() }
 
-                            barDataViewModel.pubData = PubData(elements.toMutableList())
+                            barDataViewModel.updatePubData(pubs)
                             barListAdapter = BarsListAdapter(barDataViewModel, barListFragment)
                             recyclerViewBarList.adapter = barListAdapter
                         }

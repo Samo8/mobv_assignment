@@ -4,12 +4,13 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.assignment.room.dao.ElementDao
-import com.example.assignment.room.model.ElementRoom
+import com.example.assignment.common.PubData
+import com.example.assignment.room.dao.PubDao
+import com.example.assignment.room.model.PubRoom
 
-@Database(entities = [ElementRoom::class], version = 1, exportSchema = false)
+@Database(entities = [PubRoom::class], version = 1, exportSchema = false)
 abstract class PubsRoomDatabase: RoomDatabase() {
-    abstract fun elementDao(): ElementDao
+    abstract fun pubDao(): PubDao
 
     companion object {
         @Volatile

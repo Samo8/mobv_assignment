@@ -7,7 +7,6 @@ import android.widget.TextView
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.assignment.R
-import com.example.assignment.RemoveItemHelper
 import com.example.assignment.ui.viewmodels.PubDataViewModel
 
 class BarsListAdapter(
@@ -15,13 +14,15 @@ class BarsListAdapter(
     private val barsListFragment: BarsListFragment,
 ) :
     RecyclerView.Adapter<BarsListAdapter.ViewHolder>() {
-    private val elements = pubDataViewModel.pubData.elements
+    private val pubs = pubDataViewModel.pubData
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val textView: TextView
+        val textViewPubName: TextView
+        val textViewPeopleCount: TextView
 
         init {
-            textView = view.findViewById(R.id.textView)
+            textViewPubName = view.findViewById(R.id.textViewItemPubName)
+            textViewPeopleCount = view.findViewById(R.id.textViewItemPeopleCount)
         }
     }
 
@@ -33,25 +34,19 @@ class BarsListAdapter(
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        val tags = elements[position].tags
-        viewHolder.textView.text = tags.name
+        val pub = pubs[position]
+        viewHolder.textViewPubName.text = pub.bar_name
+        viewHolder.textViewPeopleCount.text = String.format("%s: %s",
+            "Počet ľudí", pub.users)
 
-        viewHolder.textView.setOnClickListener {
+        viewHolder.textViewPubName.setOnClickListener {
             val action = BarsListFragmentDirections.actionBarsListFragmentToBarDetailFragment(
-                tags = tags,
-                removeItem = RemoveItemHelper (
-                    { removeBarByPosition(position) },
-                    position
-                )
+                id = pub.bar_id,
+                peoplePresentCount = pub.users,
             )
             barsListFragment.findNavController().navigate(action)
         }
     }
 
-    override fun getItemCount() = elements.size
-
-    private fun removeBarByPosition(index: Int) {
-        elements.removeAt(index)
-        notifyItemRemoved(index)
-    }
+    override fun getItemCount() = pubs.size
 }

@@ -1,9 +1,11 @@
 package com.example.assignment.server
 
+import com.example.assignment.PubsService
 import com.example.assignment.SessionManager
 import com.example.assignment.auth.AuthServer.refresh
 import com.example.assignment.auth.AuthService
-import com.example.assignment.data.models.AuthData
+import com.example.assignment.common.PubData
+import com.example.assignment.auth.AuthData
 import com.example.assignment.user.UserService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -16,6 +18,7 @@ object MpageServer {
     private const val URL = "https://zadanie.mpage.sk"
     private val authService: AuthService
     private val userService: UserService
+    private val pubsService: PubsService
 
     init {
         val client = OkHttpClient
@@ -29,6 +32,36 @@ object MpageServer {
             .build()
         authService = retrofit.create(AuthService::class.java)
         userService = retrofit.create(UserService::class.java)
+        pubsService = retrofit.create(PubsService::class.java)
+    }
+
+    suspend fun fetchBarList (
+        authData: AuthData,
+        sessionManager: SessionManager,
+    ): List<PubData> = withContext(Dispatchers.IO) {
+        val response = pubsService.fetchBarList(
+            headers = mapOf(
+                "authorization" to "Bearer ${authData.access}",
+                "x-apikey" to "c95332ee022df8c953ce470261efc695ecf3e784",
+                "x-user" to authData.uid,
+            ),
+        )
+        if (response.code() == 401) {
+            try {
+                val updatedAuthData = refresh(authData.uid, authData.refresh, sessionManager)
+                fetchBarList(updatedAuthData, sessionManager)
+            } catch (e: Exception) {
+                throw Exception(e.toString())
+            }
+        } else {
+            if (response.isSuccessful) {
+                return@withContext response.body() ?: mutableListOf()
+            } else {
+                println(response.errorBody())
+                println(response.errorBody()?.charStream()?.readText())
+                throw Exception(response.errorBody()?.charStream()?.readText())
+            }
+        }
     }
 
     suspend fun addFriend (
@@ -50,20 +83,6 @@ object MpageServer {
          try {
              val updatedAuthData = refresh(authData.uid, authData.refresh, sessionManager)
              addFriend(updatedAuthData, friendName, sessionManager)
-//             request = UserService.UserPostRequest(friendName)
-//             response = userService.addFriend(
-//                 headers = mapOf(
-//                     "authorization" to "Bearer ${updatedAuthData.access}",
-//                     "x-apikey" to "c95332ee022df8c953ce470261efc695ecf3e784",
-//                     "x-user" to authData.uid,
-//                 ),
-//                 request = request,
-//             )
-//             if (!response.isSuccessful) {
-//                 println(response.errorBody())
-//                 println(response.errorBody()?.charStream()?.readText())
-//                 throw Exception(response.errorBody()?.charStream()?.readText())
-//             }
          } catch (e: Exception) {
              throw Exception(e.toString())
          }

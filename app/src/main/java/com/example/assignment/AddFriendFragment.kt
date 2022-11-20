@@ -2,9 +2,7 @@ package com.example.assignment
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.os.Build.VERSION_CODES.S
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -12,11 +10,9 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
-import androidx.navigation.fragment.findNavController
-import com.example.assignment.data.models.AuthData
+import com.example.assignment.auth.AuthData
 import com.example.assignment.databinding.FragmentAddFriendBinding
 import com.example.assignment.server.MpageServer
-import com.example.assignment.ui.LoginFragmentDirections
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

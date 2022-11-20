@@ -49,7 +49,7 @@ class AnimationFragment : Fragment() {
 
         val textViewName: TextView = binding.textViewName
         val textViewBarName: TextView = binding.textViewBarName
-        val buttonShowOnMap: Button = binding.buttonShowOnMap
+//        val buttonShowOnMap: Button = binding.buttonShowOnMap
         val animationView: LottieAnimationView = binding.animationView
 
         textViewName.text = name
@@ -57,12 +57,12 @@ class AnimationFragment : Fragment() {
 
         animationView.setOnClickListener { animationView.playAnimation() }
 
-        buttonShowOnMap.setOnClickListener {
-            val mapUri: Uri = Uri.parse("geo:0,0?q=$latitude,$longitude")
-            val mapIntent = Intent(Intent.ACTION_VIEW, mapUri)
-            mapIntent.setPackage("com.google.android.apps.maps")
-            startActivity(mapIntent)
-        }
+//        buttonShowOnMap.setOnClickListener {
+//            val mapUri: Uri = Uri.parse("geo:0,0?q=$latitude,$longitude")
+//            val mapIntent = Intent(Intent.ACTION_VIEW, mapUri)
+//            mapIntent.setPackage("com.google.android.apps.maps")
+//            startActivity(mapIntent)
+//        }
 
 //        animationView.addAnimatorListener(object : Animator.AnimatorListener {
 //            override fun onAnimationStart(animation: Animator) {}

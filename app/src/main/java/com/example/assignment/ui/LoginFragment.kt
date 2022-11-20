@@ -43,7 +43,7 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val authData = sessionManager.fetchAuthData()
-        if (authData != null) {
+        if (authData.uid != "-1") {
             Log.i("auth data", authData.access)
             findNavController().navigate(
                 LoginFragmentDirections.actionLoginFragmentToBarsListFragment()

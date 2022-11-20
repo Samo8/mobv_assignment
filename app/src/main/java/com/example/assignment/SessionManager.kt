@@ -2,10 +2,8 @@ package com.example.assignment
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.example.assignment.data.models.AuthData
+import com.example.assignment.auth.AuthData
 import com.google.gson.Gson
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
 
 //class SessionManager @Inject constructor(@ApplicationContext context: Context?) {
 class SessionManager(context: Context?) {
@@ -23,8 +21,10 @@ class SessionManager(context: Context?) {
         prefs?.edit()?.putString(AUTH_DATA, serializedData)?.apply()
     }
 
-    fun fetchAuthData(): AuthData? {
-        val authData = prefs?.getString(AUTH_DATA, null) ?: return null
+    fun fetchAuthData(): AuthData {
+        val authData = prefs?.getString(AUTH_DATA, null)
+            ?: return AuthData(uid = "-1", access = "", refresh = "")
+
         return Gson().fromJson(authData, AuthData::class.java)
     }
 }

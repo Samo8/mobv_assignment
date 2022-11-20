@@ -1,8 +1,6 @@
 package com.example.assignment.auth
 
 import com.example.assignment.SessionManager
-import com.example.assignment.data.models.AuthData
-import com.example.assignment.server.MpageServer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
