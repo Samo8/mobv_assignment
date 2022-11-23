@@ -17,4 +17,6 @@
     <string name="firend_name">Meno kamarata</string>
     <string name="add_friend">Pridat kamarata</string>
     <string name="people_count">Počet ľudí</string>
+    <string name="friends_list">Friends list</string>
+    <string name="pubs_around">Podniky naokolo</string>
 </resources>

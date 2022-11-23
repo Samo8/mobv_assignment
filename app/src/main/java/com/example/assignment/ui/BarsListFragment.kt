@@ -1,12 +1,16 @@
 package com.example.assignment.ui
 
+import android.Manifest
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.util.Log
+import android.view.*
 import android.widget.ProgressBar
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -27,6 +31,24 @@ class BarsListFragment : Fragment() {
     private val barDataViewModel: PubDataViewModel by activityViewModels()
     private lateinit var barListAdapter: BarsListAdapter
     private lateinit var recyclerViewBarList: RecyclerView
+
+    val requestMultiplePermissions = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        var notGranted = false
+        permissions.entries.forEach {
+            if (!it.value) {
+                notGranted = true
+                Toast.makeText(context, "${it.key} not granted", Toast.LENGTH_LONG).show()
+            }
+            Log.d("DEBUG", "${it.key} = ${it.value}")
+        }
+        if (!notGranted) {
+            findNavController().navigate(
+                BarsListFragmentDirections.actionBarsListFragmentToPubsAroundFragment()
+            )
+        }
+    }
 
     private val pubsDBViewModel: PubsDBViewModel by activityViewModels {
         PubsViewModelFactory(
@@ -54,10 +76,42 @@ class BarsListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         recyclerViewBarList = binding.recyclerViewBarsList
+        recyclerViewBarList.layoutManager = LinearLayoutManager(context)
+
         recyclerViewBarList.adapter = barListAdapter
 
         val progressBar: ProgressBar = binding.progressBar
         val floatingActionButtonSort = binding.floatingActionButtonSort
+
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.app_bar_menu, menu)
+
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.friends -> {
+                        findNavController().navigate(
+                            BarsListFragmentDirections.actionBarsListFragmentToFriendsListFragment()
+                        )
+                        return true
+                    }
+                    R.id.location -> {
+                        requestMultiplePermissions.launch(
+                            arrayOf(
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION,
+//                                Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                            )
+                        )
+                        return true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         val barListFragment = this
 
@@ -76,6 +130,7 @@ class BarsListFragment : Fragment() {
 
                                 barListAdapter = BarsListAdapter(barDataViewModel, barListFragment)
                                 recyclerViewBarList.adapter = barListAdapter
+
                             }
                         }
                         else -> {
@@ -109,7 +164,6 @@ class BarsListFragment : Fragment() {
 //            recyclerViewBarList.adapter = barListAdapter
         }
 
-        recyclerViewBarList.layoutManager = LinearLayoutManager(context)
         if (recyclerViewBarList.adapter == null) {
             recyclerViewBarList.adapter = barListAdapter
         }

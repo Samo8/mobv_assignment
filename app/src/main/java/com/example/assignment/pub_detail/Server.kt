@@ -1,5 +1,7 @@
 package com.example.assignment.pub_detail
 
+import android.location.Location
+import com.example.assignment.pub_detail.model.Element
 import com.example.assignment.pub_detail.model.PubDetail
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -28,6 +30,21 @@ object Server {
         println("URL:" + response.raw().request().url())
         if (response.isSuccessful) {
             val body = response.body()!!
+            return@withContext body
+        } else {
+            throw Exception(response.errorBody()?.charStream()?.readText())
+        }
+    }
+
+    suspend fun fetchPubsAround(
+        location: Location
+    ): List<Element> = withContext(Dispatchers.IO) {
+        val response = pubDetailService.fetchPubsAround(
+            data = "[out:json];node(around:250,${location.latitude}, ${location.longitude});(node(around:250)[\"amenity\"~\"^pub\$|^bar\$|^restaurant\$|^cafe\$|^fast_food\$|^stripclub\$|^nightclub\$\"];);out body;>;out skel;"
+        )
+        println("URL:" + response.raw().request().url())
+        if (response.isSuccessful) {
+            val body = response.body()!!.elements
             return@withContext body
         } else {
             throw Exception(response.errorBody()?.charStream()?.readText())

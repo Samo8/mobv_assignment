@@ -6,6 +6,7 @@ import com.example.assignment.auth.AuthServer.refresh
 import com.example.assignment.auth.AuthService
 import com.example.assignment.common.PubData
 import com.example.assignment.auth.AuthData
+import com.example.assignment.user.Friend
 import com.example.assignment.user.UserService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -88,6 +89,35 @@ object MpageServer {
          }
         } else {
             if (!response.isSuccessful) {
+                println(response.errorBody())
+                println(response.errorBody()?.charStream()?.readText())
+                throw Exception(response.errorBody()?.charStream()?.readText())
+            }
+        }
+    }
+
+    suspend fun fetchFriends (
+        authData: AuthData,
+        sessionManager: SessionManager,
+    ): List<Friend> = withContext(Dispatchers.IO) {
+        val response = userService.fetchFriends(
+            headers = mapOf(
+                "authorization" to "Bearer ${authData.access}",
+                "x-apikey" to "c95332ee022df8c953ce470261efc695ecf3e784",
+                "x-user" to authData.uid,
+            ),
+        )
+        if (response.code() == 401) {
+            try {
+                val updatedAuthData = refresh(authData.uid, authData.refresh, sessionManager)
+                fetchFriends(updatedAuthData, sessionManager)
+            } catch (e: Exception) {
+                throw Exception(e.toString())
+            }
+        } else {
+            if (response.isSuccessful) {
+                return@withContext response.body() ?: mutableListOf()
+            } else {
                 println(response.errorBody())
                 println(response.errorBody()?.charStream()?.readText())
                 throw Exception(response.errorBody()?.charStream()?.readText())

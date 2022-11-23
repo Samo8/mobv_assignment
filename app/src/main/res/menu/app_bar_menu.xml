@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/location"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/location"
+        android:title="@string/pubs_around" />
+    <item
+        android:id="@+id/friends"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/people"
+        android:title="@string/friends_list" />
+</menu>
