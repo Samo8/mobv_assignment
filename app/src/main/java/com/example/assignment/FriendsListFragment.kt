@@ -51,7 +51,6 @@ class FriendsListFragment : Fragment() {
 
         recyclerViewFriends = binding.recyclerViewFriendsList
         recyclerViewFriends.layoutManager = LinearLayoutManager(context)
-
         recyclerViewFriends.adapter = friendsListAdapter
 
         CoroutineScope(Dispatchers.Main).launch {

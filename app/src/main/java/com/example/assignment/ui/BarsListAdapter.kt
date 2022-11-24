@@ -21,8 +21,8 @@ class BarsListAdapter(
         val textViewPeopleCount: TextView
 
         init {
-            textViewPubName = view.findViewById(R.id.textViewItemPubName)
-            textViewPeopleCount = view.findViewById(R.id.textViewItemPeopleCount)
+            textViewPubName = view.findViewById(R.id.textViewPubsAroundPubName)
+            textViewPeopleCount = view.findViewById(R.id.textViewPubsAroundDistance)
         }
     }
 
