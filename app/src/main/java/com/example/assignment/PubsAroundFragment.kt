@@ -1,26 +1,38 @@
 package com.example.assignment
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
+import android.app.PendingIntent.FLAG_UPDATE_CURRENT
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
-import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
 import com.example.assignment.databinding.FragmentPubsAroundBinding
 import com.example.assignment.pub_detail.Server
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
+import com.example.assignment.server.MpageServer
+import com.example.assignment.ui.BarsListFragmentDirections
+import com.google.android.gms.location.*
+import com.google.android.gms.location.R
 import com.google.android.gms.tasks.CancellationToken
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.OnTokenCanceledListener
@@ -37,15 +49,65 @@ class PubsAroundFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var geofencingClient: GeofencingClient
+
     private val pubsAroundViewModel: PubsAroundViewModel by activityViewModels()
 
     private lateinit var pubsAroundListAdapter: PubsAroundAdapter
     private lateinit var recyclerViewPubsAround: RecyclerView
+    private lateinit var animationView: LottieAnimationView
 
+    private lateinit var sessionManager: SessionManager
+
+    private val requestBackgroundLocationPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { permission ->
+        if (!permission) {
+            Toast.makeText(context, "not granted", Toast.LENGTH_LONG).show()
+        } else {
+            joinPub(animationView)
+        }
+    }
+
+    private fun joinPub(animationView: LottieAnimationView) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val selectedPub = pubsAroundViewModel.getSelectedPub()
+
+            try {
+                MpageServer.joinPub(
+                    sessionManager,
+                    PubsService.JoinPubRequest(
+                        id = selectedPub.element.id.toString(),
+                        type = selectedPub.element.type,
+                        lat = selectedPub.element.lat,
+                        lon = selectedPub.element.lon,
+                        name = selectedPub.element.tags.name,
+                    )
+                )
+                Toast.makeText(
+                    context, "Úspešne pridaný do podniku: ${selectedPub.element.tags.name}",
+                    Toast.LENGTH_LONG
+                ).show()
+
+                updateAnimationProgress(animationView, 75, 150)
+
+                createFence(selectedPub.element.lat, selectedPub.element.lon)
+            } catch (e: Exception) {
+                println(e.toString())
+                Toast.makeText(context, e.toString(), Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        sessionManager = SessionManager(context)
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
+        geofencingClient = LocationServices.getGeofencingClient(requireActivity())
+
         pubsAroundListAdapter = PubsAroundAdapter(pubsAroundViewModel)
     }
 
@@ -57,6 +119,7 @@ class PubsAroundFragment : Fragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -65,9 +128,18 @@ class PubsAroundFragment : Fragment() {
         recyclerViewPubsAround.adapter = pubsAroundListAdapter
 
         val progressBar: ProgressBar = binding.progressBarPubsAround
-        val animationView: LottieAnimationView = binding.animationView
+        val joinPubButton: Button = binding.buttonJoinPub
+        animationView = binding.animationView
 
-        animationView.setOnClickListener { animationView.playAnimation() }
+        joinPubButton.setOnClickListener {
+            requestBackgroundLocationPermission.launch(
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            )
+        }
+
+        animationView.setOnClickListener {
+            animationView.playAnimation()
+        }
 
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
@@ -80,7 +152,7 @@ class PubsAroundFragment : Fragment() {
             return
         }
 
-        fusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, object : CancellationToken() {
+        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, object : CancellationToken() {
             override fun onCanceledRequested(p0: OnTokenCanceledListener) = CancellationTokenSource().token
             override fun isCancellationRequested() = false
         })
@@ -108,9 +180,62 @@ class PubsAroundFragment : Fragment() {
                         recyclerViewPubsAround.adapter = pubsAroundListAdapter
 
                         progressBar.visibility = View.GONE
+
+                        updateAnimationProgress(animationView, 0, 75)
                     }
                 }
             }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun createFence(lat: Double, lon: Double) {
+        val flags = when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
+            else -> FLAG_UPDATE_CURRENT
+        }
+
+        println(flags)
+
+        val geofenceIntent = PendingIntent.getBroadcast(
+            requireContext(), 0,
+            Intent(requireContext(), GeofenceBroadcastReceiver::class.java),
+//            FLAG_MUTABLE
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val request = GeofencingRequest.Builder().apply {
+            addGeofence(
+                Geofence.Builder()
+                    .setRequestId("mygeofence")
+                    .setCircularRegion(lat, lon, 300F)
+                    .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_EXIT)
+                    .build()
+            )
+        }.build()
+
+        println(request.toString())
+
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        geofencingClient.addGeofences(request, geofenceIntent).run {
+            addOnSuccessListener {
+                Toast.makeText(context, "Geofence(s) added", Toast.LENGTH_LONG).show()
+            }
+            addOnFailureListener {
+                Toast.makeText(context, "Failed to add geofence(s)", Toast.LENGTH_SHORT).show()
+                it.printStackTrace()
+            }
+        }
+    }
+
+    private fun updateAnimationProgress(animationView: LottieAnimationView, min: Int, max: Int) {
+        animationView.setMinAndMaxFrame(min, max)
+        animationView.playAnimation()
     }
 
     private fun distanceInMeters (lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
@@ -134,5 +259,6 @@ class PubsAroundFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
+//        pubsAroundViewModel.updatePubsAround(listOf())
     }
 }

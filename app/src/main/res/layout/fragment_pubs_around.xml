@@ -17,11 +17,11 @@
         app:layout_constraintTop_toBottomOf="@+id/animationView" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/buttonJoinPub"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="Button"
+        android:text="@string/join_pub"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/animationView"
         app:layout_constraintTop_toTopOf="parent" />
@@ -33,8 +33,10 @@
         android:layout_marginTop="200dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/animationView" />
+        app:layout_constraintTop_toBottomOf="@+id/animationView"
+        app:layout_constraintVertical_bias="1.0" />
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/animationView"

@@ -65,6 +65,35 @@ object MpageServer {
         }
     }
 
+    suspend fun joinPub (
+        sessionManager: SessionManager,
+        body: PubsService.JoinPubRequest,
+    ): Unit = withContext(Dispatchers.IO) {
+        val authData = sessionManager.fetchAuthData()
+        val response = pubsService.joinPub(
+            headers = mapOf(
+                "authorization" to "Bearer ${authData.access}",
+                "x-apikey" to "c95332ee022df8c953ce470261efc695ecf3e784",
+                "x-user" to authData.uid,
+            ),
+            body = body,
+        )
+        if (response.code() == 401) {
+            try {
+                refresh(authData.uid, authData.refresh, sessionManager)
+                joinPub(sessionManager, body)
+            } catch (e: Exception) {
+                throw Exception(e.toString())
+            }
+        } else {
+            if (!response.isSuccessful) {
+                println(response.errorBody())
+                println(response.errorBody()?.charStream()?.readText())
+                throw Exception(response.errorBody()?.charStream()?.readText())
+            }
+        }
+    }
+
     suspend fun addFriend (
         authData: AuthData,
         friendName: String,

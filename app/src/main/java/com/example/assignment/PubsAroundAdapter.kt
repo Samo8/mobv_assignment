@@ -36,12 +36,12 @@ class PubsAroundAdapter(
         val pub = pubs[position]
 
         viewHolder.itemView.setOnClickListener {
-            pubsAroundViewModel.updateIsSelected(position)
+            pubsAroundViewModel.updateIsSelected(pub.element.id)
             notifyDataSetChanged()
         }
         viewHolder.textViewPubName.text = pub.element.tags.name
 
-        if (position == pubsAroundViewModel.selectedPubIndex) {
+        if (pub.element.id == pubsAroundViewModel.selectedPubId) {
             viewHolder.itemView.setBackgroundColor(Color.GREEN)
         } else {
             viewHolder.itemView.setBackgroundColor(Color.WHITE)

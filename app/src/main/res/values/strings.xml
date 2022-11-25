@@ -19,4 +19,5 @@
     <string name="people_count">Počet ľudí</string>
     <string name="friends_list">Friends list</string>
     <string name="pubs_around">Podniky naokolo</string>
+    <string name="join_pub">Pridať sa do podniku</string>
 </resources>

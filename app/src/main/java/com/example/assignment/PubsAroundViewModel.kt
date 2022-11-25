@@ -4,20 +4,24 @@ import androidx.lifecycle.ViewModel
 
 class PubsAroundViewModel: ViewModel() {
     private var _pubsAround: List<PubAround> = listOf()
-    private var _selectedPubINdex: Int = 0
+    private var _selectedPubId: Long = 0
 
     val pubsAround: List<PubAround>
         get() = _pubsAround
 
-    val selectedPubIndex: Int
-        get() = _selectedPubINdex
+    val selectedPubId: Long
+        get() = _selectedPubId
 
     fun updatePubsAround(pubs: List<PubAround>) {
         _pubsAround = pubs
-        _selectedPubINdex = 0
+        _selectedPubId = if(pubs.isNotEmpty()) pubs.first().element.id else 0
     }
 
-    fun updateIsSelected(pubIndex: Int) {
-        _selectedPubINdex = pubIndex
+    fun updateIsSelected(pubId: Long) {
+        _selectedPubId = pubId
+    }
+
+    fun getSelectedPub(): PubAround {
+        return _pubsAround.first{ _selectedPubId == it.element.id }
     }
 }
