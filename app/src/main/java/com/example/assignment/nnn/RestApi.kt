@@ -4,7 +4,6 @@ import android.content.Context
 import com.example.assignment.auth.AuthData
 import com.example.assignment.common.PubData
 import com.example.assignment.user.Friend
-import com.example.assignment.user.UserService
 import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Response
@@ -31,7 +30,7 @@ interface RestApi {
     suspend fun userLogin(@Body user: UserSignRequest): Response<AuthData>
 
     @POST("user/refresh.php")
-    fun userRefresh(@Body user: PostRequestTokenRefresh) : Call<AuthData>
+    fun userRefresh(@Body user: RefreshTokenRequest) : Call<AuthData>
 
     @GET("bar/list.php")
     @Headers("mobv-auth: accept")
@@ -40,7 +39,7 @@ interface RestApi {
     @POST("/contact/message.php")
     @Headers("mobv-auth: accept")
     suspend fun addFriend(
-        @Body request: UserService.UserPostRequest,
+        @Body request: AddFriendRequest,
     ): Response<Void>
 
     @GET("/contact/list.php")

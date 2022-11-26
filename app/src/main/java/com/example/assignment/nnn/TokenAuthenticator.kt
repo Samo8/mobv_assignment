@@ -21,7 +21,7 @@ class TokenAuthenticator(val context: Context) : Authenticator {
                 }
 
                 val tokenResponse = RestApi.create(context).userRefresh(
-                    PostRequestTokenRefresh(
+                    RefreshTokenRequest(
                         userItem.refresh
                     )
                 ).execute()

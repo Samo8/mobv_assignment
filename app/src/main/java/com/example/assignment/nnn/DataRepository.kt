@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import com.example.assignment.auth.AuthData
 import com.example.assignment.room.model.PubRoom
 import com.example.assignment.user.Friend
-import com.example.assignment.user.UserService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
@@ -84,7 +83,7 @@ class DataRepository private constructor(
         friendName: String,
     ): Unit = withContext(Dispatchers.IO) {
         try {
-            val resp = service.addFriend(UserService.UserPostRequest(friendName))
+            val resp = service.addFriend(AddFriendRequest(friendName))
 
             if(resp.isSuccessful) {
                println("Added friend successfully")

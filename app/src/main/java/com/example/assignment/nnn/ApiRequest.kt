@@ -5,6 +5,10 @@ data class UserSignRequest(
     val password: String,
 )
 
-data class PostRequestTokenRefresh(
+data class RefreshTokenRequest(
     val refresh: String,
+)
+
+data class AddFriendRequest(
+    val contact: String,
 )
