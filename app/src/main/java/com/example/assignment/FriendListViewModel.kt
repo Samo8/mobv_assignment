@@ -1,5 +1,7 @@
 package com.example.assignment
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.assignment.nnn.DataRepository
@@ -9,12 +11,22 @@ import kotlinx.coroutines.launch
 class FriendListViewModel(
     private val repository: DataRepository
 ): ViewModel() {
-    private var _friends = listOf<Friend>()
+    private val _message = MutableLiveData<Evento<String>>()
+    val message: LiveData<Evento<String>>
+        get() = _message
 
-    val friends
-        get() = _friends
+    val friends = MutableLiveData<List<Friend>>(mutableListOf())
 
-    suspend fun fetchFriends() {
-        _friends = repository.fetchFriends()
+    val loading = MutableLiveData(false)
+
+    fun fetchFriends() {
+        viewModelScope.launch {
+            loading.postValue(true)
+            repository.fetchFriends(
+                { _message.postValue(Evento(it)) },
+                { friends.postValue(it) }
+            )
+            loading.postValue(false)
+        }
     }
 }

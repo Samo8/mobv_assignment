@@ -2,10 +2,8 @@ package com.example.assignment.nnn
 
 import android.annotation.SuppressLint
 import androidx.lifecycle.LiveData
-import com.example.assignment.SessionManager
 import com.example.assignment.auth.AuthData
 import com.example.assignment.room.model.PubRoom
-import com.example.assignment.server.MpageServer
 import com.example.assignment.user.Friend
 import com.example.assignment.user.UserService
 import kotlinx.coroutines.Dispatchers
@@ -102,21 +100,27 @@ class DataRepository private constructor(
         }
     }
 
-    suspend fun fetchFriends (): List<Friend> = withContext(Dispatchers.IO) {
+    suspend fun fetchFriends (
+        onError: (error: String) -> Unit,
+        onStatus: (success: List<Friend>?) -> Unit
+    )= withContext(Dispatchers.IO) {
         try {
             val resp = service.fetchFriends()
 
             if (resp.isSuccessful) {
-                return@withContext resp.body()!!
+                resp.body()?.let { user ->
+                    onStatus(user)
+                }
             } else {
-                throw Exception("Failed to fetch friends")
+                onError("Failed to login, try again later.")
+                onStatus(null)
             }
         } catch (ex: IOException) {
             ex.printStackTrace()
-            throw Exception("Failed to fetch friends")
+            onError("Failed to fetch friends")
         } catch (ex: Exception) {
             ex.printStackTrace()
-            throw Exception("Failed to fetch friends")
+            onError("Failed to fetch friends")
         }
     }
 

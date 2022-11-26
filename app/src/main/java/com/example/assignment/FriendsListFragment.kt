@@ -49,12 +49,10 @@ class FriendsListFragment : Fragment() {
         recyclerViewFriends = binding.recyclerViewFriendsList
         recyclerViewFriends.layoutManager = LinearLayoutManager(context)
 
-        CoroutineScope(Dispatchers.Main).launch {
-            friendListViewModel.fetchFriends()
+        friendListViewModel.fetchFriends()
 
-            println(friendListViewModel.friends)
-
-            friendsListAdapter = FriendsListAdapter(friendListViewModel)
+        friendListViewModel.friends.observe(this.viewLifecycleOwner) {
+            friendsListAdapter = FriendsListAdapter(it)
             recyclerViewFriends.adapter = friendsListAdapter
         }
     }
