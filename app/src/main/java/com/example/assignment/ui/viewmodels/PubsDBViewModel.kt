@@ -4,9 +4,12 @@ import androidx.lifecycle.*
 import com.example.assignment.common.PubData
 import com.example.assignment.room.dao.PubDao
 import com.example.assignment.room.model.PubRoom
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import okhttp3.Dispatcher
 
-class PubsDBViewModel(private val pubDao: PubDao): ViewModel() {
+class PubsDBViewModel(
+    private val pubDao: PubDao
+): ViewModel() {
     val allItems: LiveData<List<PubRoom>> = pubDao.getAllPubs().asLiveData()
 
     private fun insertPub(pub: PubRoom) {
@@ -15,19 +18,26 @@ class PubsDBViewModel(private val pubDao: PubDao): ViewModel() {
         }
     }
 
-//    suspend fun deletePub(element: PubRoom) {
-//        pubDao.delete(element)
-//    }
-
-    fun addPubs(pubs: List<PubData>) {
-        for (pub in pubs) {
-            addPubItem(
-                id = pub.bar_id, name = pub.bar_name, lat = pub.lat, lon = pub.lon,
-                type = pub.bar_type, users = pub.users, lastUpdate = pub.last_update
+    suspend fun addPubs(pubs: List<PubData>) {
+        val roomPubs = pubs.map {
+            PubRoom(
+                id = it.bar_id,
+                name = it.bar_name,
+                lat = it.lat,
+                lon = it.lon,
+                type = it.bar_type,
+                users = it.users,
+                lastUpdate = it.last_update,
             )
         }
+        pubDao.insertAll(roomPubs)
+//        for (pub in pubs) {
+//            addPubItem(
+//                id = pub.bar_id, name = pub.bar_name, lat = pub.lat, lon = pub.lon,
+//                type = pub.bar_type, users = pub.users, lastUpdate = pub.last_update
+//            )
+//        }
     }
-
     private fun addPubItem(
         id: String, name: String, lat: String, lon: String,
         type: String, users: String, lastUpdate: String
@@ -42,6 +52,10 @@ class PubsDBViewModel(private val pubDao: PubDao): ViewModel() {
             lastUpdate = lastUpdate,
         )
         insertPub(pub)
+    }
+
+    suspend fun deleteAll() {
+        pubDao.deleteAll()
     }
 }
 

@@ -7,8 +7,11 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PubDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(pub: PubRoom)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(pubs: List<PubRoom>)
 
     @Update
     suspend fun update(pub: PubRoom)
@@ -21,4 +24,7 @@ interface PubDao {
 
     @Query("SELECT * from pubs where id = :id")
     fun getPubById(id: Int): LiveData<List<PubRoom>>
+
+    @Query("DELETE from pubs")
+    suspend fun deleteAll()
 }

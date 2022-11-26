@@ -3,8 +3,7 @@ package com.example.assignment
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.PendingIntent
-import android.app.PendingIntent.FLAG_IMMUTABLE
-import android.app.PendingIntent.FLAG_UPDATE_CURRENT
+import android.app.PendingIntent.*
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
@@ -180,7 +179,6 @@ class PubsAroundFragment : Fragment() {
                         recyclerViewPubsAround.adapter = pubsAroundListAdapter
 
                         progressBar.visibility = View.GONE
-
                         updateAnimationProgress(animationView, 0, 75)
                     }
                 }
@@ -189,18 +187,11 @@ class PubsAroundFragment : Fragment() {
 
     @SuppressLint("MissingPermission")
     private fun createFence(lat: Double, lon: Double) {
-        val flags = when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
-            else -> FLAG_UPDATE_CURRENT
-        }
-
-        println(flags)
-
         val geofenceIntent = PendingIntent.getBroadcast(
             requireContext(), 0,
             Intent(requireContext(), GeofenceBroadcastReceiver::class.java),
-//            FLAG_MUTABLE
             PendingIntent.FLAG_UPDATE_CURRENT
+//            PendingIntent.FLAG_MUTABLE
         )
 
         val request = GeofencingRequest.Builder().apply {
@@ -259,6 +250,6 @@ class PubsAroundFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
-//        pubsAroundViewModel.updatePubsAround(listOf())
+        pubsAroundViewModel.updatePubsAround(listOf())
     }
 }

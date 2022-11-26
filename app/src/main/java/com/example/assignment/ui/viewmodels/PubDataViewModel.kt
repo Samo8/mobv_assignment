@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.example.assignment.common.PubData
 
 class PubDataViewModel: ViewModel() {
-    var _pubData: List<PubData> = mutableListOf()
+    private var _pubData: List<PubData> = listOf()
 
     val pubData: List<PubData>
         get() = _pubData
