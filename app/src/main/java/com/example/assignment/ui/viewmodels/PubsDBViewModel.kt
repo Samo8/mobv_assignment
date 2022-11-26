@@ -10,7 +10,19 @@ import okhttp3.Dispatcher
 class PubsDBViewModel(
     private val pubDao: PubDao
 ): ViewModel() {
-    val allItems: LiveData<List<PubRoom>> = pubDao.getAllPubs().asLiveData()
+//    val allItems: LiveData<List<PubRoom>> = pubDao.getAllPubs().asLiveData()
+val allItems: LiveData<List<PubRoom>> =
+    liveData {
+        emitSource(pubDao.getAllPubs())
+    }
+
+    fun refreshData(pubs: List<PubData>){
+        viewModelScope.launch {
+            deleteAll()
+            addPubs(pubs)
+        }
+    }
+
 
     private fun insertPub(pub: PubRoom) {
         viewModelScope.launch {
@@ -31,12 +43,6 @@ class PubsDBViewModel(
             )
         }
         pubDao.insertAll(roomPubs)
-//        for (pub in pubs) {
-//            addPubItem(
-//                id = pub.bar_id, name = pub.bar_name, lat = pub.lat, lon = pub.lon,
-//                type = pub.bar_type, users = pub.users, lastUpdate = pub.last_update
-//            )
-//        }
     }
     private fun addPubItem(
         id: String, name: String, lat: String, lon: String,

@@ -9,27 +9,24 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.assignment.*
 import com.example.assignment.databinding.FragmentBarsListBinding
-import com.example.assignment.server.MpageServer
-import com.example.assignment.ui.viewmodels.PubDataViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.example.assignment.nnn.BarsViewModel
+import com.example.assignment.nnn.Injection
 
 
 class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     private var _binding: FragmentBarsListBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var sessionManager: SessionManager
-    private val barDataViewModel: PubDataViewModel by activityViewModels()
+    private lateinit var viewmodel: BarsViewModel
+
     private lateinit var barListAdapter: BarsListAdapter
     private lateinit var recyclerViewBarList: RecyclerView
 
@@ -55,11 +52,14 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         }
     }
 
-    private val pubsDBViewModel: PubsDBViewModel by activityViewModels {
-        PubsViewModelFactory(
-            (activity?.application as PubsApplication).database
-                .pubDao()
-        )
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        viewmodel = ViewModelProvider(
+            this,
+            Injection.provideViewModelFactory(requireContext())
+        ).get(BarsViewModel::class.java)
+//        barListAdapter = BarsListAdapter(barDataViewModel, this)
     }
 
     override fun onCreateView(
@@ -70,13 +70,6 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         return binding.root
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        sessionManager = SessionManager(context)
-        barListAdapter = BarsListAdapter(barDataViewModel, this)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -84,8 +77,6 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
         recyclerViewBarList = binding.recyclerViewBarsList
         recyclerViewBarList.layoutManager = LinearLayoutManager(context)
-
-        recyclerViewBarList.adapter = barListAdapter
 
         progressBar = binding.progressBar
         val floatingActionButtonSort = binding.floatingActionButtonSort
@@ -100,30 +91,15 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
         barListFragment = this
 
-        pubsDBViewModel.allItems.observe(this.viewLifecycleOwner) {
-                items ->
-                    when (items.isEmpty()) {
-                        true -> {
-                            fetchBarListFromApi()
-                        }
-                        else -> {
-                            val pubs = items.map { it.toPubData() }
-
-                            barDataViewModel.updatePubData(pubs)
-                            barListAdapter = BarsListAdapter(barDataViewModel, barListFragment)
-                            recyclerViewBarList.adapter = barListAdapter
-                        }
-                    }
+        viewmodel.bars.observe(this.viewLifecycleOwner) {
+            barListAdapter = BarsListAdapter(it, barListFragment)
+            recyclerViewBarList.adapter = barListAdapter
         }
 
         floatingActionButtonSort.setOnClickListener {
             findNavController().navigate(
                 BarsListFragmentDirections.actionBarsListFragmentToAddFriendFragment()
             )
-        }
-
-        if (recyclerViewBarList.adapter == null) {
-            recyclerViewBarList.adapter = barListAdapter
         }
 
         progressBar.visibility = View.INVISIBLE
@@ -134,30 +110,8 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         _binding = null
     }
 
-    private fun fetchBarListFromApi() {
-        CoroutineScope(Dispatchers.Main).launch {
-            progressBar.visibility = View.VISIBLE
-            recyclerViewBarList.visibility = View.INVISIBLE
-            val data = MpageServer.fetchBarList(
-                authData = sessionManager.fetchAuthData(),
-                sessionManager = sessionManager,
-            )
-
-            pubsDBViewModel.deleteAll()
-            barDataViewModel.updatePubData(data)
-            pubsDBViewModel.addPubs(barDataViewModel.pubData)
-
-            barListAdapter = BarsListAdapter(barDataViewModel, barListFragment)
-            recyclerViewBarList.adapter = barListAdapter
-
-            progressBar.visibility = View.INVISIBLE
-            recyclerViewBarList.visibility = View.VISIBLE
-
-        }
-    }
-
     override fun onRefresh() {
-        fetchBarListFromApi()
+        viewmodel.refreshData()
         swipeRefresh.isRefreshing = false
     }
 

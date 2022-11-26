@@ -20,4 +20,5 @@
     <string name="friends_list">Friends list</string>
     <string name="pubs_around">Podniky naokolo</string>
     <string name="join_pub">Pridať sa do podniku</string>
+    <string name="open_registration">Otvor registráciu</string>
 </resources>

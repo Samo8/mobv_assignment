@@ -1,22 +1,18 @@
 package com.example.assignment
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.assignment.databinding.FragmentBarsListBinding
 import com.example.assignment.databinding.FragmentFriendsListBinding
+import com.example.assignment.nnn.AuthViewModel
+import com.example.assignment.nnn.Injection
 import com.example.assignment.server.MpageServer
-import com.example.assignment.ui.BarsListAdapter
-import com.example.assignment.ui.viewmodels.PubDataViewModel
-import com.example.assignment.user.Friend
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,8 +21,7 @@ class FriendsListFragment : Fragment() {
     private var _binding: FragmentFriendsListBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var sessionManager: SessionManager
-    private val friendListViewModel: FriendListViewModel by activityViewModels()
+    private lateinit var friendListViewModel: FriendListViewModel
 
     private lateinit var friendsListAdapter: FriendsListAdapter
     private lateinit var recyclerViewFriends: RecyclerView
@@ -34,8 +29,10 @@ class FriendsListFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        sessionManager = SessionManager(context)
-        friendsListAdapter = FriendsListAdapter(friendListViewModel)
+        friendListViewModel = ViewModelProvider(
+            this,
+            Injection.provideViewModelFactory(requireContext())
+        )[FriendListViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -51,15 +48,11 @@ class FriendsListFragment : Fragment() {
 
         recyclerViewFriends = binding.recyclerViewFriendsList
         recyclerViewFriends.layoutManager = LinearLayoutManager(context)
-        recyclerViewFriends.adapter = friendsListAdapter
 
         CoroutineScope(Dispatchers.Main).launch {
-            val friends = MpageServer.fetchFriends(
-                authData = sessionManager.fetchAuthData(),
-                sessionManager = sessionManager,
-            )
+            friendListViewModel.fetchFriends()
 
-            friendListViewModel.updateFriends(friends)
+            println(friendListViewModel.friends)
 
             friendsListAdapter = FriendsListAdapter(friendListViewModel)
             recyclerViewFriends.adapter = friendsListAdapter

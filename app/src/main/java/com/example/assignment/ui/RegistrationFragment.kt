@@ -10,10 +10,11 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.example.assignment.auth.AuthServer
-import com.example.assignment.server.MpageServer
 import com.example.assignment.databinding.FragmentRegistrationBinding
+import com.example.assignment.nnn.AuthViewModel
+import com.example.assignment.nnn.Injection
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,8 +24,15 @@ class RegistrationFragment : Fragment() {
     private var _binding: FragmentRegistrationBinding? = null
     private val binding get() = _binding!!
 
+    private lateinit var authViewModel: AuthViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        authViewModel = ViewModelProvider(
+            this,
+            Injection.provideViewModelFactory(requireContext())
+        ).get(AuthViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -43,13 +51,6 @@ class RegistrationFragment : Fragment() {
         val passwordRepeatEditText: EditText = binding.editTextPasswordRepeatRegistration
 
         val registrationButton: Button = binding.buttonRegister
-        val loginButton: Button =  binding.buttonLoginRegistration
-
-        loginButton.setOnClickListener {
-            findNavController().navigate(
-                RegistrationFragmentDirections.actionRegistrationFragmentToLoginFragment()
-            )
-        }
 
         registrationButton.setOnClickListener {
             val username = userNameEditText.text.toString()
@@ -63,12 +64,11 @@ class RegistrationFragment : Fragment() {
             } else {
                 CoroutineScope(Dispatchers.Main).launch {
                     try {
-                        val response = AuthServer.register(username, password)
+                        authViewModel.signup(username, password)
 
-                        val preferences: SharedPreferences? =
-                            activity?.getSharedPreferences("BAR_APP", Context.MODE_PRIVATE)
-                        val authData = Gson().toJson(response)
-                        preferences?.edit()?.putString("auth_data", authData)?.apply()
+                        findNavController().navigate(
+                            RegistrationFragmentDirections.actionRegistrationFragmentToBarsListFragment()
+                        )
                     } catch (e: Exception) {
                         Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
                     }

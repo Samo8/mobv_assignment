@@ -1,7 +1,6 @@
 package com.example.assignment.ui
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -9,12 +8,14 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import com.example.assignment.R
-import com.example.assignment.SessionManager
-import com.example.assignment.auth.AuthServer
 import com.example.assignment.databinding.FragmentLoginBinding
-import com.google.gson.Gson
+import com.example.assignment.nnn.AuthViewModel
+import com.example.assignment.nnn.Injection
+import com.example.assignment.nnn.PreferenceData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,13 +23,16 @@ import kotlinx.coroutines.launch
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
-    private lateinit var sessionManager: SessionManager
+
+    private lateinit var authViewModel: AuthViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-//        sessionManager = SessionManager(context)
-        sessionManager = SessionManager(context)
+        authViewModel = ViewModelProvider(
+            this,
+            Injection.provideViewModelFactory(requireContext())
+        ).get(AuthViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -42,17 +46,25 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val authData = sessionManager.fetchAuthData()
-        if (authData.uid != "-1") {
-            Log.i("auth data", authData.access)
+        val x = PreferenceData.getInstance().getUserItem(requireContext())
+        println(x)
+        if ((x?.uid ?: "").isNotBlank()) {
             findNavController().navigate(
                 LoginFragmentDirections.actionLoginFragmentToBarsListFragment()
             )
+            return
         }
 
         val userNameEditText: EditText = binding.editTextUsernameLogin
         val passwordEditText: EditText = binding.editTextPasswordLogin
         val loginButton: Button = binding.buttonLogin
+        val buttonGoToRegistration: Button = binding.buttonGoToRegistration
+
+        buttonGoToRegistration.setOnClickListener {
+            findNavController().navigate(
+                LoginFragmentDirections.actionLoginFragmentToRegistrationFragment()
+            )
+        }
 
         loginButton.setOnClickListener {
             val username = userNameEditText.text.toString()
@@ -69,17 +81,20 @@ class LoginFragment : Fragment() {
             } else {
                 CoroutineScope(Dispatchers.Main).launch {
                     try {
-                        val loginData = AuthServer.login(username, password)
-
-                        sessionManager.saveAuthData(loginData)
-
-                        findNavController().navigate(
-                            LoginFragmentDirections.actionLoginFragmentToBarsListFragment()
-                        )
+                        authViewModel.login(username, password)
                     } catch (e: Exception) {
                         Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
                     }
                 }
+            }
+        }
+
+        authViewModel.user.observe(viewLifecycleOwner){
+            it?.let {
+                PreferenceData.getInstance().putUserItem(requireContext(), it)
+                findNavController().navigate(
+                    LoginFragmentDirections.actionLoginFragmentToBarsListFragment()
+                )
             }
         }
     }

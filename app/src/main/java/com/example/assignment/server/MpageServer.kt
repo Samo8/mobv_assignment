@@ -2,8 +2,6 @@ package com.example.assignment.server
 
 import com.example.assignment.PubsService
 import com.example.assignment.SessionManager
-import com.example.assignment.auth.AuthServer.refresh
-import com.example.assignment.auth.AuthService
 import com.example.assignment.common.PubData
 import com.example.assignment.auth.AuthData
 import com.example.assignment.user.Friend
@@ -17,7 +15,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object MpageServer {
     private const val URL = "https://zadanie.mpage.sk"
-    private val authService: AuthService
     private val userService: UserService
     private val pubsService: PubsService
 
@@ -31,7 +28,6 @@ object MpageServer {
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .build()
-        authService = retrofit.create(AuthService::class.java)
         userService = retrofit.create(UserService::class.java)
         pubsService = retrofit.create(PubsService::class.java)
     }
@@ -49,8 +45,8 @@ object MpageServer {
         )
         if (response.code() == 401) {
             try {
-                val updatedAuthData = refresh(authData.uid, authData.refresh, sessionManager)
-                fetchBarList(updatedAuthData, sessionManager)
+//                val updatedAuthData = refresh(authData.uid, authData.refresh, sessionManager)
+                fetchBarList(authData, sessionManager)
             } catch (e: Exception) {
                 throw Exception(e.toString())
             }
@@ -80,7 +76,7 @@ object MpageServer {
         )
         if (response.code() == 401) {
             try {
-                refresh(authData.uid, authData.refresh, sessionManager)
+//                refresh(authData.uid, authData.refresh, sessionManager)
                 joinPub(sessionManager, body)
             } catch (e: Exception) {
                 throw Exception(e.toString())
@@ -111,8 +107,8 @@ object MpageServer {
         )
         if (response.code() == 401) {
          try {
-             val updatedAuthData = refresh(authData.uid, authData.refresh, sessionManager)
-             addFriend(updatedAuthData, friendName, sessionManager)
+//             val updatedAuthData = refresh(authData.uid, authData.refresh, sessionManager)
+             addFriend(authData, friendName, sessionManager)
          } catch (e: Exception) {
              throw Exception(e.toString())
          }
@@ -138,8 +134,8 @@ object MpageServer {
         )
         if (response.code() == 401) {
             try {
-                val updatedAuthData = refresh(authData.uid, authData.refresh, sessionManager)
-                fetchFriends(updatedAuthData, sessionManager)
+//                val updatedAuthData = refresh(authData.uid, authData.refresh, sessionManager)
+                fetchFriends(authData, sessionManager)
             } catch (e: Exception) {
                 throw Exception(e.toString())
             }

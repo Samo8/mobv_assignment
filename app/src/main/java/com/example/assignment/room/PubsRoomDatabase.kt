@@ -15,18 +15,30 @@ abstract class PubsRoomDatabase: RoomDatabase() {
     companion object {
         @Volatile
         private var INSTANCE: PubsRoomDatabase? = null
-        fun getDatabase(context: Context): PubsRoomDatabase {
-            return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    PubsRoomDatabase::class.java,
-                    "item_database"
-                )
-                    .fallbackToDestructiveMigration()
-                    .build()
-                INSTANCE = instance
-                return instance
+
+        fun getInstance(context: Context): PubsRoomDatabase =
+            INSTANCE ?: synchronized(this) {
+                INSTANCE ?: buildDatabase(context).also {  INSTANCE = it }
             }
-        }
+
+        private fun buildDatabase(context: Context) =
+            Room.databaseBuilder(
+                context.applicationContext,
+                PubsRoomDatabase::class.java, "barsDatabase"
+            ).fallbackToDestructiveMigration()
+                .build()
+//        fun getDatabase(context: Context): PubsRoomDatabase {
+//            return INSTANCE ?: synchronized(this) {
+//                val instance = Room.databaseBuilder(
+//                    context.applicationContext,
+//                    PubsRoomDatabase::class.java,
+//                    "item_database"
+//                )
+//                    .fallbackToDestructiveMigration()
+//                    .build()
+//                INSTANCE = instance
+//                return instance
+//            }
+//        }
     }
 }

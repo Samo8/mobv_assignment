@@ -20,7 +20,7 @@ interface PubDao {
     suspend fun delete(pub: PubRoom)
 
     @Query("SELECT * from pubs")
-    fun getAllPubs(): Flow<List<PubRoom>>
+    fun getAllPubs(): LiveData<List<PubRoom>>
 
     @Query("SELECT * from pubs where id = :id")
     fun getPubById(id: Int): LiveData<List<PubRoom>>

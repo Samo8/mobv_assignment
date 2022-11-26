@@ -7,14 +7,13 @@ import android.widget.TextView
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.assignment.R
-import com.example.assignment.ui.viewmodels.PubDataViewModel
+import com.example.assignment.room.model.PubRoom
 
 class BarsListAdapter(
-    pubDataViewModel: PubDataViewModel,
+    private val pubs: List<PubRoom>,
     private val barsListFragment: BarsListFragment,
 ) :
     RecyclerView.Adapter<BarsListAdapter.ViewHolder>() {
-    private val pubs = pubDataViewModel.pubData
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val textViewPubName: TextView
@@ -35,13 +34,13 @@ class BarsListAdapter(
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         val pub = pubs[position]
-        viewHolder.textViewPubName.text = pub.bar_name
+        viewHolder.textViewPubName.text = pub.name
         viewHolder.textViewPeopleCount.text = String.format("%s: %s",
             "Počet ľudí", pub.users)
 
         viewHolder.textViewPubName.setOnClickListener {
             val action = BarsListFragmentDirections.actionBarsListFragmentToBarDetailFragment(
-                id = pub.bar_id,
+                id = pub.id,
                 peoplePresentCount = pub.users,
             )
             barsListFragment.findNavController().navigate(action)
