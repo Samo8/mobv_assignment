@@ -2,11 +2,10 @@ package com.example.assignment.data
 
 import android.annotation.SuppressLint
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.example.assignment.auth.AuthData
-import com.example.assignment.data.api.AddFriendRequest
-import com.example.assignment.data.api.Friend
-import com.example.assignment.data.api.RestApi
-import com.example.assignment.data.api.UserSignRequest
+import com.example.assignment.common.PubData
+import com.example.assignment.data.api.*
 import com.example.assignment.data.database.LocalCache
 import com.example.assignment.pub_detail.model.PubDetail
 import com.example.assignment.data.database.model.PubRoom
@@ -18,7 +17,7 @@ import java.util.*
 
 class DataRepository private constructor(
     private val service: RestApi,
-    private val cache: LocalCache
+    private val cache: LocalCache,
 ){
     suspend fun register(
         name: String,
@@ -127,6 +126,28 @@ class DataRepository private constructor(
         } catch (ex: Exception) {
             ex.printStackTrace()
             onError("Failed to fetch friends")
+        }
+    }
+
+    suspend fun joinPub(
+        request: JoinPubRequest,
+        onError: (error: String) -> Unit,
+        onSuccess: (error: String) -> Unit,
+    ): Unit = withContext(Dispatchers.IO) {
+        try {
+            val resp = service.joinPub(request)
+
+            if(resp.isSuccessful) {
+                onSuccess("Joined pub successfully")
+            } else {
+                onError("Failed to join pub, try again later.")
+            }
+        } catch (ex: IOException) {
+            ex.printStackTrace()
+            onError("Join pub failed, check internet connection")
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            onError("Join pub failed, error.")
         }
     }
 

@@ -1,8 +1,7 @@
 package com.example.assignment.server
 
 import com.example.assignment.PubsService
-import com.example.assignment.common.PubData
-import com.example.assignment.auth.AuthData
+import com.example.assignment.data.api.JoinPubRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -27,36 +26,8 @@ object MpageServer {
         pubsService = retrofit.create(PubsService::class.java)
     }
 
-    suspend fun fetchBarList (
-        authData: AuthData,
-    ): Unit = withContext(Dispatchers.IO) {
-        val response = pubsService.fetchBarList(
-            headers = mapOf(
-                "authorization" to "Bearer ${authData.access}",
-                "x-apikey" to "c95332ee022df8c953ce470261efc695ecf3e784",
-                "x-user" to authData.uid,
-            ),
-        )
-        if (response.code() == 401) {
-            try {
-//                val updatedAuthData = refresh(authData.uid, authData.refresh, sessionManager)
-//                fetchBarList(authData, sessionManager)
-            } catch (e: Exception) {
-                throw Exception(e.toString())
-            }
-        } else {
-            if (response.isSuccessful) {
-//                return@withContext response.body() ?: mutableListOf()
-            } else {
-                println(response.errorBody())
-                println(response.errorBody()?.charStream()?.readText())
-                throw Exception(response.errorBody()?.charStream()?.readText())
-            }
-        }
-    }
-
     suspend fun joinPub (
-        body: PubsService.JoinPubRequest,
+        body: JoinPubRequest,
     ): Unit = withContext(Dispatchers.IO) {
 //        val response = pubsService.joinPub(
 //            headers = mapOf(

@@ -33,16 +33,11 @@ class ViewModelFactory(
             @Suppress("UNCHECKED_CAST")
             return PubDetailViewModel(repository) as T
         }
-//
-//        if (modelClass.isAssignableFrom(LocateViewModel::class.java)) {
-//            @Suppress("UNCHECKED_CAST")
-//            return LocateViewModel(repository) as T
-//        }
-//
-//        if (modelClass.isAssignableFrom(DetailViewModel::class.java)) {
-//            @Suppress("UNCHECKED_CAST")
-//            return DetailViewModel(repository) as T
-//        }
+
+        if (modelClass.isAssignableFrom(PubsAroundViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return PubsAroundViewModel(repository) as T
+        }
 
         throw IllegalArgumentException("Unknown ViewModel class")
     }

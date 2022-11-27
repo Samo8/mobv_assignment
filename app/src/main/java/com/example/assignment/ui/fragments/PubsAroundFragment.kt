@@ -19,14 +19,15 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
 import com.example.assignment.*
+import com.example.assignment.common.Injection
+import com.example.assignment.data.api.JoinPubRequest
 import com.example.assignment.databinding.FragmentPubsAroundBinding
 import com.example.assignment.pub_detail.Server
-import com.example.assignment.server.MpageServer
 import com.example.assignment.ui.adapters.PubsAroundAdapter
 import com.example.assignment.ui.viewmodels.PubsAroundViewModel
 import com.example.assignment.ui.viewmodels.data.PubAround
@@ -48,12 +49,11 @@ class PubsAroundFragment : Fragment() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var geofencingClient: GeofencingClient
 
-    private val pubsAroundViewModel: PubsAroundViewModel by activityViewModels()
+    private lateinit var pubsAroundViewModel: PubsAroundViewModel
 
     private lateinit var pubsAroundListAdapter: PubsAroundAdapter
     private lateinit var recyclerViewPubsAround: RecyclerView
     private lateinit var animationView: LottieAnimationView
-
 
     private val requestBackgroundLocationPermission = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -66,37 +66,56 @@ class PubsAroundFragment : Fragment() {
     }
 
     private fun joinPub(animationView: LottieAnimationView) {
-        CoroutineScope(Dispatchers.Main).launch {
-            val selectedPub = pubsAroundViewModel.getSelectedPub()
+        val selectedPub = pubsAroundViewModel.getSelectedPub()
 
-            try {
-                MpageServer.joinPub(
-                    PubsService.JoinPubRequest(
-                        id = selectedPub.element.id.toString(),
-                        type = selectedPub.element.type,
-                        lat = selectedPub.element.lat,
-                        lon = selectedPub.element.lon,
-                        name = selectedPub.element.tags.name,
-                    )
-                )
-                Toast.makeText(
-                    context, "Úspešne pridaný do podniku: ${selectedPub.element.tags.name}",
-                    Toast.LENGTH_LONG
-                ).show()
+        pubsAroundViewModel.joinPub(
+            JoinPubRequest(
+                id = selectedPub.element.id.toString(),
+                type = selectedPub.element.type,
+                lat = selectedPub.element.lat,
+                lon = selectedPub.element.lon,
+                name = selectedPub.element.tags.name,
+            )
+        )
 
-                updateAnimationProgress(animationView, 75, 150)
-
-                createFence(selectedPub.element.lat, selectedPub.element.lon)
-            } catch (e: Exception) {
-                println(e.toString())
-                Toast.makeText(context, e.toString(), Toast.LENGTH_LONG).show()
-            }
-        }
+        updateAnimationProgress(animationView, 75, 150)
+        createFence(selectedPub.element.lat, selectedPub.element.lon)
+//        CoroutineScope(Dispatchers.Main).launch {
+//            val selectedPub = pubsAroundViewModel.getSelectedPub()
+//
+//            try {
+//                MpageServer.joinPub(
+//                    JoinPubRequest(
+//                        id = selectedPub.element.id.toString(),
+//                        type = selectedPub.element.type,
+//                        lat = selectedPub.element.lat,
+//                        lon = selectedPub.element.lon,
+//                        name = selectedPub.element.tags.name,
+//                    )
+//                )
+//                Toast.makeText(
+//                    context, "Úspešne pridaný do podniku: ${selectedPub.element.tags.name}",
+//                    Toast.LENGTH_LONG
+//                ).show()
+//
+//                updateAnimationProgress(animationView, 75, 150)
+//
+//                createFence(selectedPub.element.lat, selectedPub.element.lon)
+//            } catch (e: Exception) {
+//                println(e.toString())
+//                Toast.makeText(context, e.toString(), Toast.LENGTH_LONG).show()
+//            }
+//        }
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        pubsAroundViewModel = ViewModelProvider(
+            this,
+            Injection.provideViewModelFactory(requireContext())
+        )[PubsAroundViewModel::class.java]
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
         geofencingClient = LocationServices.getGeofencingClient(requireActivity())
@@ -130,9 +149,7 @@ class PubsAroundFragment : Fragment() {
             )
         }
 
-        animationView.setOnClickListener {
-            animationView.playAnimation()
-        }
+        animationView.setOnClickListener { animationView.playAnimation() }
 
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),

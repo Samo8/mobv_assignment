@@ -15,13 +15,16 @@ class BarsViewModel(
 
     val loading = MutableLiveData(false)
 
-    val bars: LiveData<List<PubRoom>> =
+    var bars: LiveData<List<PubRoom>> =
         liveData {
             loading.postValue(true)
             repository.fetchPubs { _message.postValue(Evento(it)) }
             loading.postValue(false)
             emitSource(repository.dbPubs())
         }
+
+//    val sortedBooks: LiveData<List<PubRoom>> = Transformations
+//        .map(bars) { books -> books }
 
     fun refreshData(){
         viewModelScope.launch {

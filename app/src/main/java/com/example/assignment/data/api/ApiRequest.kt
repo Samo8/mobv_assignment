@@ -28,3 +28,11 @@ data class Friend(
 data class PubsAroundResponse(
     val elements: List<Element>
 )
+
+data class JoinPubRequest(
+    val id: String,
+    val type: String,
+    val lat: Double,
+    val lon: Double,
+    val name: String?,
+)

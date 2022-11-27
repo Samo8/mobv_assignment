@@ -4,7 +4,10 @@ import android.Manifest
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.ProgressBar
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.MenuProvider
@@ -14,11 +17,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.Room
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.assignment.*
 import com.example.assignment.databinding.FragmentBarsListBinding
 import com.example.assignment.ui.viewmodels.BarsViewModel
 import com.example.assignment.common.Injection
+import com.example.assignment.data.database.model.PubRoom
 import com.example.assignment.ui.adapters.BarsListAdapter
 
 
@@ -59,8 +64,7 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         viewmodel = ViewModelProvider(
             this,
             Injection.provideViewModelFactory(requireContext())
-        ).get(BarsViewModel::class.java)
-//        barListAdapter = BarsListAdapter(barDataViewModel, this)
+        )[BarsViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -81,6 +85,27 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
         progressBar = binding.progressBar
         val floatingActionButtonSort = binding.floatingActionButtonSort
+        val spinner: Spinner = binding.spinner
+
+        val options = arrayOf(
+            "Zvoľte zoradenie",
+            "Názov",
+            "Počet ľudí",
+            "Vzdialenosť"
+        )
+        spinner.adapter = ArrayAdapter(requireActivity(), android.R.layout.simple_list_item_1, options)
+        spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+                barListAdapter = BarsListAdapter(
+                    sortPubs(
+                        options[p2],
+                        viewmodel.bars.value
+                    ), barListFragment)
+                recyclerViewBarList.adapter = barListAdapter
+            }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {}
+        }
 
         swipeRefresh = binding.swipeRefresh
         swipeRefresh.setOnRefreshListener(this)
@@ -93,7 +118,7 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         barListFragment = this
 
         viewmodel.bars.observe(this.viewLifecycleOwner) {
-            barListAdapter = BarsListAdapter(it, barListFragment)
+            barListAdapter = BarsListAdapter(it ?: mutableListOf(), barListFragment)
             recyclerViewBarList.adapter = barListAdapter
         }
 
@@ -104,6 +129,18 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         }
 
         progressBar.visibility = View.INVISIBLE
+    }
+
+    private fun sortPubs(sortBy: String, pubs: List<PubRoom>?) : List<PubRoom> {
+        if (pubs == null) {
+            return  mutableListOf()
+        }
+        return when (sortBy) {
+            "Názov" -> pubs.sortedBy { it.name }
+            "Počet ľudí" -> pubs.sortedBy { it.users }
+            "Vzdialenosť" -> pubs.sortedBy { it.name }
+            else -> pubs
+        }
     }
 
     override fun onDestroyView() {

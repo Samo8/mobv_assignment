@@ -1,9 +1,15 @@
 package com.example.assignment.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.assignment.data.DataRepository
+import com.example.assignment.data.api.JoinPubRequest
 import com.example.assignment.ui.viewmodels.data.PubAround
+import kotlinx.coroutines.launch
 
-class PubsAroundViewModel: ViewModel() {
+class PubsAroundViewModel(
+    private val repository: DataRepository
+): ViewModel() {
     private var _pubsAround: List<PubAround> = listOf()
     private var _selectedPubId: Long = 0
 
@@ -24,5 +30,15 @@ class PubsAroundViewModel: ViewModel() {
 
     fun getSelectedPub(): PubAround {
         return _pubsAround.first{ _selectedPubId == it.element.id }
+    }
+
+    fun joinPub(joinPubRequest: JoinPubRequest) {
+        viewModelScope.launch {
+            repository.joinPub(
+                joinPubRequest,
+                { },
+                { }
+            )
+        }
     }
 }

@@ -48,9 +48,11 @@ interface RestApi {
     @Headers("mobv-auth: accept")
     suspend fun fetchFriends(): Response<List<Friend>>
 
-//    @POST("bar/message.php")
-//    @Headers("mobv-auth: accept")
-//    suspend fun barMessage(@Body bar: BarMessageRequest) : Response<Any>
+    @POST("/bar/message.php")
+    @Headers("mobv-auth: accept")
+    suspend fun joinPub(
+        @Body body: JoinPubRequest,
+    ): Response<Void>
 
     companion object{
         private const val BASE_URL = "https://zadanie.mpage.sk/"
