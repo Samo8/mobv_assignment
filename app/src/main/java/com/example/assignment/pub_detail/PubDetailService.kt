@@ -1,6 +1,6 @@
 package com.example.assignment.pub_detail
 
-import com.example.assignment.PubsAroundResponse
+import com.example.assignment.data.api.PubsAroundResponse
 import com.example.assignment.pub_detail.model.PubDetail
 import retrofit2.Response
 import retrofit2.http.GET

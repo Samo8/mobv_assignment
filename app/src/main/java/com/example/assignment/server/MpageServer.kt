@@ -1,7 +1,6 @@
 package com.example.assignment.server
 
 import com.example.assignment.PubsService
-import com.example.assignment.SessionManager
 import com.example.assignment.common.PubData
 import com.example.assignment.auth.AuthData
 import kotlinx.coroutines.Dispatchers
@@ -30,8 +29,7 @@ object MpageServer {
 
     suspend fun fetchBarList (
         authData: AuthData,
-        sessionManager: SessionManager,
-    ): List<PubData> = withContext(Dispatchers.IO) {
+    ): Unit = withContext(Dispatchers.IO) {
         val response = pubsService.fetchBarList(
             headers = mapOf(
                 "authorization" to "Bearer ${authData.access}",
@@ -42,13 +40,13 @@ object MpageServer {
         if (response.code() == 401) {
             try {
 //                val updatedAuthData = refresh(authData.uid, authData.refresh, sessionManager)
-                fetchBarList(authData, sessionManager)
+//                fetchBarList(authData, sessionManager)
             } catch (e: Exception) {
                 throw Exception(e.toString())
             }
         } else {
             if (response.isSuccessful) {
-                return@withContext response.body() ?: mutableListOf()
+//                return@withContext response.body() ?: mutableListOf()
             } else {
                 println(response.errorBody())
                 println(response.errorBody()?.charStream()?.readText())
@@ -58,31 +56,29 @@ object MpageServer {
     }
 
     suspend fun joinPub (
-        sessionManager: SessionManager,
         body: PubsService.JoinPubRequest,
     ): Unit = withContext(Dispatchers.IO) {
-        val authData = sessionManager.fetchAuthData()
-        val response = pubsService.joinPub(
-            headers = mapOf(
-                "authorization" to "Bearer ${authData.access}",
-                "x-apikey" to "c95332ee022df8c953ce470261efc695ecf3e784",
-                "x-user" to authData.uid,
-            ),
-            body = body,
-        )
-        if (response.code() == 401) {
-            try {
-//                refresh(authData.uid, authData.refresh, sessionManager)
-                joinPub(sessionManager, body)
-            } catch (e: Exception) {
-                throw Exception(e.toString())
-            }
-        } else {
-            if (!response.isSuccessful) {
-                println(response.errorBody())
-                println(response.errorBody()?.charStream()?.readText())
-                throw Exception(response.errorBody()?.charStream()?.readText())
-            }
-        }
+//        val response = pubsService.joinPub(
+//            headers = mapOf(
+//                "authorization" to "Bearer ${authData.access}",
+//                "x-apikey" to "c95332ee022df8c953ce470261efc695ecf3e784",
+//                "x-user" to authData.uid,
+//            ),
+//            body = body,
+//        )
+//        if (response.code() == 401) {
+//            try {
+////                refresh(authData.uid, authData.refresh, sessionManager)
+//                joinPub(sessionManager, body)
+//            } catch (e: Exception) {
+//                throw Exception(e.toString())
+//            }
+//        } else {
+//            if (!response.isSuccessful) {
+//                println(response.errorBody())
+//                println(response.errorBody()?.charStream()?.readText())
+//                throw Exception(response.errorBody()?.charStream()?.readText())
+//            }
+//        }
     }
 }
