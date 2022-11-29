@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.assignment.R
@@ -13,7 +14,7 @@ import com.example.assignment.ui.fragments.BarsListFragmentDirections
 
 class BarsListAdapter(
     private val pubs: List<PubRoom>,
-    private val barsListFragment: BarsListFragment,
+    private val navController: NavController,
 ) :
     RecyclerView.Adapter<BarsListAdapter.ViewHolder>() {
 
@@ -38,14 +39,14 @@ class BarsListAdapter(
         val pub = pubs[position]
         viewHolder.textViewPubName.text = pub.name
         viewHolder.textViewPeopleCount.text = String.format("%s: %s",
-            "Počet ľudí", pub.users)
+            "Počet ľudí", pub.users
+        )
 
         viewHolder.textViewPubName.setOnClickListener {
             val action = BarsListFragmentDirections.actionBarsListFragmentToBarDetailFragment(
                 id = pub.id,
-                peoplePresentCount = pub.users,
             )
-            barsListFragment.findNavController().navigate(action)
+            navController.navigate(action)
         }
     }
 

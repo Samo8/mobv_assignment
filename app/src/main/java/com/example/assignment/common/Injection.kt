@@ -13,7 +13,7 @@ object Injection {
         return LocalCache(database.pubDao())
     }
 
-    private fun provideDataRepository(context: Context): DataRepository {
+    fun provideDataRepository(context: Context): DataRepository {
         return DataRepository.getInstance(RestApi.create(context), provideCache(context))
     }
 

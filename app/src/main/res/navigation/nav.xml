@@ -36,9 +36,9 @@
         <argument
             android:name="id"
             app:argType="string" />
-        <argument
-            android:name="peoplePresentCount"
-            app:argType="string" />
+        <action
+            android:id="@+id/action_barDetailFragment_to_friendsListFragment"
+            app:destination="@id/friendsListFragment" />
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
@@ -81,6 +81,9 @@
         <action
             android:id="@+id/action_friendsListFragment_to_barsListFragment"
             app:destination="@id/barsListFragment" />
+        <action
+            android:id="@+id/action_friendsListFragment_to_barDetailFragment"
+            app:destination="@id/barDetailFragment" />
     </fragment>
     <fragment
         android:id="@+id/pubsAroundFragment"

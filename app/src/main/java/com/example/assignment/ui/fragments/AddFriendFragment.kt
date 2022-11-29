@@ -25,7 +25,7 @@ class AddFriendFragment : Fragment() {
         addFriendViewModel = ViewModelProvider(
             this,
             Injection.provideViewModelFactory(requireContext())
-        ).get(AddFriendViewModel::class.java)
+        )[AddFriendViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -44,36 +44,17 @@ class AddFriendFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val editTextFriendName: EditText = binding.editTextFriendName
-        val buttonAddFriend: Button = binding.buttonAddFriend
+        addFriendViewModel.message.observe(this.viewLifecycleOwner) {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+        }
 
-        buttonAddFriend.setOnClickListener {
-            val friendName = editTextFriendName.text.toString()
+        binding.buttonAddFriend.setOnClickListener {
+            val friendName = binding.editTextFriendName.text.toString()
             if (friendName.isEmpty()) {
                 Toast.makeText(context, "Meno je prazdne", Toast.LENGTH_SHORT).show()
             } else {
                 addFriendViewModel.addFriend(friendName)
             }
-//            CoroutineScope(Dispatchers.Main).launch {
-//                try {
-//                    val friendName = editTextFriendName.text.toString()
-//                    if (friendName.isEmpty()) {
-//                        Toast.makeText(context, "Meno je prazdne", Toast.LENGTH_SHORT).show()
-//                    } else {
-//                        val preferences: SharedPreferences? =
-//                            activity?.getSharedPreferences("BAR_APP", Context.MODE_PRIVATE)
-//                        val authDataString = preferences?.getString("auth_data", null)
-//
-//                        if (authDataString != null) {
-//                            val authData = Gson().fromJson(authDataString, AuthData::class.java)
-//                            MpageServer.addFriend(authData, friendName, sessionManager)
-//                            Toast.makeText(context, "Kamarat uspesne pridany", Toast.LENGTH_SHORT).show()
-//                        }
-//                    }
-//                } catch (e: Exception) {
-//                    Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show()
-//                }
-//            }
         }
     }
 }

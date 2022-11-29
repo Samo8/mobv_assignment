@@ -20,11 +20,13 @@
         android:id="@+id/buttonJoinPub"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginEnd="8dp"
         android:text="@string/join_pub"
+        app:layout_constraintBottom_toBottomOf="@+id/animationView"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.272"
         app:layout_constraintStart_toEndOf="@+id/animationView"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/animationView" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewPubsAround"
@@ -40,8 +42,8 @@
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/animationView"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_width="180dp"
+        android:layout_height="180dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:lottie_fileName="glass_water.json" />

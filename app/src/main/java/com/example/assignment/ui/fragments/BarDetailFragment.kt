@@ -11,18 +11,19 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.assignment.R
 import com.example.assignment.databinding.FragmentBarDetailBinding
 import com.example.assignment.common.Injection
+import com.example.assignment.ui.viewmodels.BarsViewModel
 import com.example.assignment.ui.viewmodels.PubDetailViewModel
 
 private const val PUB_ID = "id"
-private const val PEOPLE_PRESENT_COUNT = "peoplePresentCount"
 
 class BarDetailFragment : Fragment() {
     private var pubId: String? = null
-    private var peoplePresentCount: String? = null
 
     private var _binding: FragmentBarDetailBinding? = null
     private val binding get() = _binding!!
+
     private lateinit var pubDetailViewModel: PubDetailViewModel
+    private lateinit var barsViewModel: BarsViewModel
 
     private var lat: Double? = null
     private var lon: Double? = null
@@ -32,13 +33,17 @@ class BarDetailFragment : Fragment() {
 
         arguments?.let {
             pubId = it.getString(PUB_ID)
-            peoplePresentCount = it.getString(PEOPLE_PRESENT_COUNT)
         }
 
         pubDetailViewModel = ViewModelProvider(
             this,
             Injection.provideViewModelFactory(requireContext())
         )[PubDetailViewModel::class.java]
+
+        barsViewModel = ViewModelProvider(
+            this,
+            Injection.provideViewModelFactory(requireContext())
+        )[BarsViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -59,11 +64,18 @@ class BarDetailFragment : Fragment() {
         val buttonShowOnMap = binding.buttonShowOnMap
         val progressBarPubDetail = binding.progressBarPubDetail
 
-        textViewPeoplePresentCount.text = String.format(
-            "%s: %s",
-            getString(R.string.people_count),
-            peoplePresentCount
-        )
+        barsViewModel.bars.observe(this.viewLifecycleOwner) {
+            val foundPub = it.first { pub ->
+                pubId == pub.id
+            }
+            textViewPeoplePresentCount.text = String.format(
+                "%s: %s",
+                getString(R.string.people_count),
+                foundPub.users
+            )
+        }
+
+
         buttonShowOnMap.visibility = View.INVISIBLE
         progressBarPubDetail.visibility = View.VISIBLE
 
@@ -96,28 +108,6 @@ class BarDetailFragment : Fragment() {
                 progressBarPubDetail.visibility = View.VISIBLE
             }
         }
-
-
-
-//        CoroutineScope(Dispatchers.Main).launch {
-//            try {
-//                val response = Server.fetchPubDetail(pubId!!)
-//
-//                val pubDetail = response.elements.first()
-//
-//                lat = pubDetail.lat
-//                lon = pubDetail.lon
-//
-//                buttonShowOnMap.visibility = View.VISIBLE
-//                progressBarPubDetail.visibility = View.GONE
-//
-//                textViewBarName.text = pubDetail.tags.name
-//                textViewStreet.text = pubDetail.tags.addrStreet
-//                textViewCapacity.text = pubDetail.tags.capacity
-//            } catch (e: Exception) {
-//                println(e.toString())
-//            }
-//        }
     }
 
     override fun onDestroyView() {

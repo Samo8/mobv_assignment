@@ -13,9 +13,12 @@ import androidx.navigation.fragment.findNavController
 import com.example.assignment.databinding.FragmentRegistrationBinding
 import com.example.assignment.ui.viewmodels.AuthViewModel
 import com.example.assignment.common.Injection
+import com.example.assignment.common.PasswordHashService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.math.BigInteger
+import java.security.MessageDigest
 
 class RegistrationFragment : Fragment() {
     private var _binding: FragmentRegistrationBinding? = null
@@ -23,13 +26,15 @@ class RegistrationFragment : Fragment() {
 
     private lateinit var authViewModel: AuthViewModel
 
+    private val passwordHashService = PasswordHashService()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         authViewModel = ViewModelProvider(
             this,
             Injection.provideViewModelFactory(requireContext())
-        ).get(AuthViewModel::class.java)
+        )[AuthViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -61,7 +66,8 @@ class RegistrationFragment : Fragment() {
             } else {
                 CoroutineScope(Dispatchers.Main).launch {
                     try {
-                        authViewModel.signup(username, password)
+                        val hashedPassword = passwordHashService.getSHA512(password)
+                        authViewModel.signup(username, hashedPassword)
 
                         findNavController().navigate(
                             RegistrationFragmentDirections.actionRegistrationFragmentToBarsListFragment()

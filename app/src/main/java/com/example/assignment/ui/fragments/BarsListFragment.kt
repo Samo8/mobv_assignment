@@ -25,6 +25,11 @@ import com.example.assignment.ui.viewmodels.BarsViewModel
 import com.example.assignment.common.Injection
 import com.example.assignment.data.database.model.PubRoom
 import com.example.assignment.ui.adapters.BarsListAdapter
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import kotlin.math.acos
+import kotlin.math.cos
+import kotlin.math.sin
 
 
 class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
@@ -40,26 +45,22 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var progressBar: ProgressBar
 
-    val requestMultiplePermissions = registerForActivityResult(
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    private val requestMultiplePermissions = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        var notGranted = false
         permissions.entries.forEach {
             if (!it.value) {
-                notGranted = true
                 Toast.makeText(context, "${it.key} not granted", Toast.LENGTH_LONG).show()
             }
-            Log.d("DEBUG", "${it.key} = ${it.value}")
-        }
-        if (!notGranted) {
-            findNavController().navigate(
-                BarsListFragmentDirections.actionBarsListFragmentToPubsAroundFragment()
-            )
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
 
         viewmodel = ViewModelProvider(
             this,
@@ -79,6 +80,7 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         super.onViewCreated(view, savedInstanceState)
 
         setupMenu()
+        viewmodel.updateCurrentLocation(fusedLocationClient, requireContext())
 
         recyclerViewBarList = binding.recyclerViewBarsList
         recyclerViewBarList.layoutManager = LinearLayoutManager(context)
@@ -86,6 +88,18 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         progressBar = binding.progressBar
         val floatingActionButtonSort = binding.floatingActionButtonSort
         val spinner: Spinner = binding.spinner
+
+        viewmodel.loading.observe(this.viewLifecycleOwner) {
+            progressBar.visibility = if (it) View.VISIBLE else View.GONE
+            recyclerViewBarList.visibility = if (it) View.GONE else View.VISIBLE
+        }
+
+        requestMultiplePermissions.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+            )
+        )
 
         val options = arrayOf(
             "Zvoľte zoradenie",
@@ -100,12 +114,13 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                     sortPubs(
                         options[p2],
                         viewmodel.bars.value
-                    ), barListFragment)
+                    ), barListFragment.findNavController())
                 recyclerViewBarList.adapter = barListAdapter
             }
 
             override fun onNothingSelected(p0: AdapterView<*>?) {}
         }
+
 
         swipeRefresh = binding.swipeRefresh
         swipeRefresh.setOnRefreshListener(this)
@@ -118,7 +133,10 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         barListFragment = this
 
         viewmodel.bars.observe(this.viewLifecycleOwner) {
-            barListAdapter = BarsListAdapter(it ?: mutableListOf(), barListFragment)
+            barListAdapter = BarsListAdapter(
+                it ?: mutableListOf(),
+                barListFragment.findNavController()
+            )
             recyclerViewBarList.adapter = barListAdapter
         }
 
@@ -127,8 +145,6 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                 BarsListFragmentDirections.actionBarsListFragmentToAddFriendFragment()
             )
         }
-
-        progressBar.visibility = View.INVISIBLE
     }
 
     private fun sortPubs(sortBy: String, pubs: List<PubRoom>?) : List<PubRoom> {
@@ -138,7 +154,20 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         return when (sortBy) {
             "Názov" -> pubs.sortedBy { it.name }
             "Počet ľudí" -> pubs.sortedBy { it.users }
-            "Vzdialenosť" -> pubs.sortedBy { it.name }
+            "Vzdialenosť" ->
+                if (viewmodel.currentLocation.value != null) {
+                    println("LOCATION NOT NULL")
+                    println(viewmodel.currentLocation.value)
+                    return pubs.sortedBy { distanceInMeters(
+                        it.lat.toDouble(),
+                        it.lon.toDouble(),
+                        viewmodel.currentLocation.value!!.latitude,
+                        viewmodel.currentLocation.value!!.longitude
+                    ) }
+                } else {
+                    return pubs.sortedBy { it.name }
+                }
+
             else -> pubs
         }
     }
@@ -168,11 +197,8 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                         return true
                     }
                     R.id.location -> {
-                        requestMultiplePermissions.launch(
-                            arrayOf(
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION,
-                            )
+                        findNavController().navigate(
+                            BarsListFragmentDirections.actionBarsListFragmentToPubsAroundFragment()
                         )
                         return true
                     }
@@ -180,5 +206,23 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                 }
             }
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+    }
+
+    private fun distanceInMeters (lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val theta = lon1 - lon2
+        var dist = sin(deg2rad(lat1)) * sin(deg2rad(lat2)) + cos(deg2rad(lat1)) * cos(deg2rad(lat2)) * cos(deg2rad(theta))
+        dist = acos(dist)
+        dist = rad2deg(dist)
+        dist *= 60 * 1.1515
+        dist *= 1.609344
+        return dist * 1000
+    }
+
+    private fun deg2rad(deg: Double): Double {
+        return deg * Math.PI / 180.0
+    }
+
+    private fun rad2deg(rad: Double): Double {
+        return rad * 180.0 / Math.PI
     }
 }

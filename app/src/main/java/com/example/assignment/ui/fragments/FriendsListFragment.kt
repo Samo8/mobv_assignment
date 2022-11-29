@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.assignment.ui.viewmodels.FriendListViewModel
@@ -48,7 +49,7 @@ class FriendsListFragment : Fragment() {
         friendListViewModel.fetchFriends()
 
         friendListViewModel.friends.observe(this.viewLifecycleOwner) {
-            friendsListAdapter = FriendsListAdapter(it)
+            friendsListAdapter = FriendsListAdapter(it, this.findNavController())
             recyclerViewFriends.adapter = friendsListAdapter
         }
     }

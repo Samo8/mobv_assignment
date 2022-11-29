@@ -87,21 +87,27 @@ class DataRepository private constructor(
 
     suspend fun addFriend(
         friendName: String,
+        onError: (error: String) -> Unit,
+        onSuccess: (success: String) -> Unit
     ): Unit = withContext(Dispatchers.IO) {
         try {
             val resp = service.addFriend(AddFriendRequest(friendName))
 
             if(resp.isSuccessful) {
                println("Added friend successfully")
+                onSuccess("Added friend successfully")
             } else {
                 println("Failed to add friend, try again later.")
+                onError("Failed to add friend, try again later.")
             }
         } catch (ex: IOException) {
             ex.printStackTrace()
             println("Add friend failed, check internet connection")
+            onError("Add friend failed, check internet connection")
         } catch (ex: Exception) {
             ex.printStackTrace()
             println("Add friend failed, error.")
+            onError("Add friend failed, error.")
         }
     }
 

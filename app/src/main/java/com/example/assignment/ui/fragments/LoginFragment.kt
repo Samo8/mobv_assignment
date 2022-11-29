@@ -1,29 +1,34 @@
 package com.example.assignment.ui.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.assignment.R
+import com.example.assignment.common.Injection
+import com.example.assignment.common.PasswordHashService
+import com.example.assignment.common.PreferenceData
 import com.example.assignment.databinding.FragmentLoginBinding
 import com.example.assignment.ui.viewmodels.AuthViewModel
-import com.example.assignment.common.Injection
-import com.example.assignment.common.PreferenceData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.math.BigInteger
+import java.security.MessageDigest
 
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var authViewModel: AuthViewModel
+
+    private val passwordHashService = PasswordHashService()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,9 +53,11 @@ class LoginFragment : Fragment() {
         val x = PreferenceData.getInstance().getUserItem(requireContext())
         println(x)
         if ((x?.uid ?: "").isNotBlank()) {
-            findNavController().navigate(
-                LoginFragmentDirections.actionLoginFragmentToBarsListFragment()
-            )
+            if (x!!.uid != "-1") {
+                findNavController().navigate(
+                    LoginFragmentDirections.actionLoginFragmentToBarsListFragment()
+                )
+            }
             return
         }
 
@@ -80,7 +87,8 @@ class LoginFragment : Fragment() {
             } else {
                 CoroutineScope(Dispatchers.Main).launch {
                     try {
-                        authViewModel.login(username, password)
+                        val hashedPassword = passwordHashService.getSHA512(password)
+                        authViewModel.login(username, hashedPassword)
                     } catch (e: Exception) {
                         Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
                     }

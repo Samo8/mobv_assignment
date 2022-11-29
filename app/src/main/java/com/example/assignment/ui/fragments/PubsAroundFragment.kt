@@ -80,32 +80,6 @@ class PubsAroundFragment : Fragment() {
 
         updateAnimationProgress(animationView, 75, 150)
         createFence(selectedPub.element.lat, selectedPub.element.lon)
-//        CoroutineScope(Dispatchers.Main).launch {
-//            val selectedPub = pubsAroundViewModel.getSelectedPub()
-//
-//            try {
-//                MpageServer.joinPub(
-//                    JoinPubRequest(
-//                        id = selectedPub.element.id.toString(),
-//                        type = selectedPub.element.type,
-//                        lat = selectedPub.element.lat,
-//                        lon = selectedPub.element.lon,
-//                        name = selectedPub.element.tags.name,
-//                    )
-//                )
-//                Toast.makeText(
-//                    context, "Úspešne pridaný do podniku: ${selectedPub.element.tags.name}",
-//                    Toast.LENGTH_LONG
-//                ).show()
-//
-//                updateAnimationProgress(animationView, 75, 150)
-//
-//                createFence(selectedPub.element.lat, selectedPub.element.lon)
-//            } catch (e: Exception) {
-//                println(e.toString())
-//                Toast.makeText(context, e.toString(), Toast.LENGTH_LONG).show()
-//            }
-//        }
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -142,6 +116,10 @@ class PubsAroundFragment : Fragment() {
         val progressBar: ProgressBar = binding.progressBarPubsAround
         val joinPubButton: Button = binding.buttonJoinPub
         animationView = binding.animationView
+
+        pubsAroundViewModel.message.observe(this.viewLifecycleOwner) {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+        }
 
         joinPubButton.setOnClickListener {
             requestBackgroundLocationPermission.launch(
@@ -201,7 +179,7 @@ class PubsAroundFragment : Fragment() {
         val geofenceIntent = PendingIntent.getBroadcast(
             requireContext(), 0,
             Intent(requireContext(), GeofenceBroadcastReceiver::class.java),
-            PendingIntent.FLAG_UPDATE_CURRENT
+            FLAG_UPDATE_CURRENT
 //            PendingIntent.FLAG_MUTABLE
         )
 

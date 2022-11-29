@@ -1,5 +1,7 @@
 package com.example.assignment.ui.viewmodels
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.assignment.data.DataRepository
@@ -12,12 +14,14 @@ class PubsAroundViewModel(
 ): ViewModel() {
     private var _pubsAround: List<PubAround> = listOf()
     private var _selectedPubId: Long = 0
+    private val _message = MutableLiveData<String>()
 
     val pubsAround: List<PubAround>
         get() = _pubsAround
-
     val selectedPubId: Long
         get() = _selectedPubId
+    val message: LiveData<String>
+        get() = _message
 
     fun updatePubsAround(pubs: List<PubAround>) {
         _pubsAround = pubs
@@ -36,8 +40,8 @@ class PubsAroundViewModel(
         viewModelScope.launch {
             repository.joinPub(
                 joinPubRequest,
-                { },
-                { }
+                { _message.postValue(it) },
+                { _message.postValue(it) }
             )
         }
     }
