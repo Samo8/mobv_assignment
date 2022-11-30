@@ -29,16 +29,14 @@ class BarsViewModel(
     val message: LiveData<Evento<String>>
         get() = _message
 
-    private val _loading = MutableLiveData(false)
-    val loading
-        get() = _loading
+    val loading = MutableLiveData(false)
     val currentLocation = MutableLiveData<Location>(null)
 
     var bars: LiveData<List<PubRoom>> =
         liveData {
-            _loading.postValue(true)
+            loading.postValue(true)
             repository.fetchPubs { _message.postValue(Evento(it)) }
-            _loading.postValue(false)
+            loading.postValue(false)
             emitSource(repository.dbPubs())
         }
 
@@ -47,13 +45,11 @@ class BarsViewModel(
 
     fun refreshData(){
         viewModelScope.launch {
-            _loading.postValue(true)
+            loading.postValue(true)
             repository.fetchPubs { _message.postValue(Evento(it)) }
-            _loading.postValue(false)
+            loading.postValue(false)
         }
     }
-
-    fun show(msg: String){ _message.postValue(Evento(msg))}
 
     fun updateCurrentLocation(
         fusedLocationClient: FusedLocationProviderClient,

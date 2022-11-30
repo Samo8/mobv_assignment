@@ -94,7 +94,7 @@ class PubsAroundFragment : Fragment() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
         geofencingClient = LocationServices.getGeofencingClient(requireActivity())
 
-        pubsAroundListAdapter = PubsAroundAdapter(pubsAroundViewModel)
+//        pubsAroundListAdapter = PubsAroundAdapter(pubsAroundViewModel)
     }
 
     override fun onCreateView(
@@ -111,7 +111,7 @@ class PubsAroundFragment : Fragment() {
 
         recyclerViewPubsAround = binding.recyclerViewPubsAround
         recyclerViewPubsAround.layoutManager = LinearLayoutManager(context)
-        recyclerViewPubsAround.adapter = pubsAroundListAdapter
+//        recyclerViewPubsAround.adapter = pubsAroundListAdapter
 
         val progressBar: ProgressBar = binding.progressBarPubsAround
         val joinPubButton: Button = binding.buttonJoinPub
@@ -125,6 +125,19 @@ class PubsAroundFragment : Fragment() {
             requestBackgroundLocationPermission.launch(
                 Manifest.permission.ACCESS_BACKGROUND_LOCATION
             )
+        }
+
+        pubsAroundViewModel.loading.observe(this.viewLifecycleOwner) {
+            progressBar.visibility = if(it) View.VISIBLE else View.INVISIBLE
+        }
+
+        pubsAroundViewModel.pubsAround.observe(this.viewLifecycleOwner) {
+            pubsAroundListAdapter = PubsAroundAdapter(
+                it,
+                pubsAroundViewModel
+            )
+            recyclerViewPubsAround.adapter = pubsAroundListAdapter
+            updateAnimationProgress(animationView, 0, 75)
         }
 
         animationView.setOnClickListener { animationView.playAnimation() }
@@ -152,24 +165,26 @@ class PubsAroundFragment : Fragment() {
                     val lat = location.latitude
                     val lon = location.longitude
 
-                    CoroutineScope(Dispatchers.Main).launch {
-                        val response = Server.fetchPubsAround(location)
-                        println(response)
+                    pubsAroundViewModel.fetchPubsAround(location)
 
-                        val pubs = response.map {
-                            PubAround(
-                                element = it,
-                                distance = distanceInMeters(lat, lon, it.lat, it.lon),
-                            )
-                        }.sortedBy { it.distance }
-                        pubsAroundViewModel.updatePubsAround(pubs)
-
-                        pubsAroundListAdapter = PubsAroundAdapter(pubsAroundViewModel)
-                        recyclerViewPubsAround.adapter = pubsAroundListAdapter
-
-                        progressBar.visibility = View.GONE
-                        updateAnimationProgress(animationView, 0, 75)
-                    }
+//                    CoroutineScope(Dispatchers.Main).launch {
+//                        val response = Server.fetchPubsAround(location)
+//                        println(response)
+//
+//                        val pubs = response.map {
+//                            PubAround(
+//                                element = it,
+//                                distance = distanceInMeters(lat, lon, it.lat, it.lon),
+//                            )
+//                        }.sortedBy { it.distance }
+//                        pubsAroundViewModel.updatePubsAround(pubs)
+//
+//                        pubsAroundListAdapter = PubsAroundAdapter(pubsAroundViewModel)
+//                        recyclerViewPubsAround.adapter = pubsAroundListAdapter
+//
+//                        progressBar.visibility = View.GONE
+//                        updateAnimationProgress(animationView, 0, 75)
+//                    }
                 }
             }
     }
@@ -218,27 +233,9 @@ class PubsAroundFragment : Fragment() {
         animationView.playAnimation()
     }
 
-    private fun distanceInMeters (lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
-        val theta = lon1 - lon2
-        var dist = sin(deg2rad(lat1)) * sin(deg2rad(lat2)) + cos(deg2rad(lat1)) * cos(deg2rad(lat2)) * cos(deg2rad(theta))
-        dist = acos(dist)
-        dist = rad2deg(dist)
-        dist *= 60 * 1.1515
-        dist *= 1.609344
-        return dist * 1000
-    }
-
-    private fun deg2rad(deg: Double): Double {
-        return deg * Math.PI / 180.0
-    }
-
-    private fun rad2deg(rad: Double): Double {
-        return rad * 180.0 / Math.PI
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
-        pubsAroundViewModel.updatePubsAround(listOf())
+//        pubsAroundViewModel.updatePubsAround(listOf())
     }
 }

@@ -5,6 +5,7 @@ import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import android.widget.Toast
 import com.example.assignment.common.Injection
 import com.example.assignment.data.DataRepository
 import com.example.assignment.data.api.JoinPubRequest
@@ -28,6 +29,7 @@ class GeofenceBroadcastReceiver: BroadcastReceiver() {
 
         val geofenceTransition = geofencingEvent.geofenceTransition
         if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+            Toast.makeText(context, "EXIT FROM PUB", Toast.LENGTH_LONG).show()
             println("EXIT")
             val repository = Injection.provideDataRepository(
                 context!!
@@ -42,7 +44,8 @@ class GeofenceBroadcastReceiver: BroadcastReceiver() {
                         name = ""
                     ),
                     onError = { println(it) },
-                    onSuccess = { println(it) }
+                    onSuccess = { println(it) },
+                    joining = false
                 )
             }
         }

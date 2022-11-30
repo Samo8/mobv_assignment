@@ -2,11 +2,9 @@ package com.example.assignment.ui.fragments
 
 import android.Manifest
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -17,13 +15,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.Room
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.assignment.*
-import com.example.assignment.databinding.FragmentBarsListBinding
 import com.example.assignment.ui.viewmodels.BarsViewModel
 import com.example.assignment.common.Injection
 import com.example.assignment.data.database.model.PubRoom
+import com.example.assignment.databinding.FragmentBarsListBinding
 import com.example.assignment.ui.adapters.BarsListAdapter
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -36,14 +33,13 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     private var _binding: FragmentBarsListBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var viewmodel: BarsViewModel
+    private lateinit var barsViewModel: BarsViewModel
 
     private lateinit var barListAdapter: BarsListAdapter
     private lateinit var recyclerViewBarList: RecyclerView
 
     private lateinit var barListFragment: BarsListFragment
     private lateinit var swipeRefresh: SwipeRefreshLayout
-    private lateinit var progressBar: ProgressBar
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
@@ -62,7 +58,7 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
 
-        viewmodel = ViewModelProvider(
+        barsViewModel = ViewModelProvider(
             this,
             Injection.provideViewModelFactory(requireContext())
         )[BarsViewModel::class.java]
@@ -79,18 +75,22 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.apply {
+            lifecycleOwner = viewLifecycleOwner
+            barsViewModel = barsViewModel
+        }
+
         setupMenu()
-        viewmodel.updateCurrentLocation(fusedLocationClient, requireContext())
+        barsViewModel.updateCurrentLocation(fusedLocationClient, requireContext())
 
         recyclerViewBarList = binding.recyclerViewBarsList
         recyclerViewBarList.layoutManager = LinearLayoutManager(context)
 
-        progressBar = binding.progressBar
         val floatingActionButtonSort = binding.floatingActionButtonSort
         val spinner: Spinner = binding.spinner
 
-        viewmodel.loading.observe(this.viewLifecycleOwner) {
-            progressBar.visibility = if (it) View.VISIBLE else View.GONE
+        barsViewModel.loading.observe(this.viewLifecycleOwner) {
+            binding.progressBar.visibility = if (it) View.VISIBLE else View.GONE
             recyclerViewBarList.visibility = if (it) View.GONE else View.VISIBLE
         }
 
@@ -113,7 +113,7 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                 barListAdapter = BarsListAdapter(
                     sortPubs(
                         options[p2],
-                        viewmodel.bars.value
+                        barsViewModel.bars.value
                     ), barListFragment.findNavController())
                 recyclerViewBarList.adapter = barListAdapter
             }
@@ -132,7 +132,7 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
         barListFragment = this
 
-        viewmodel.bars.observe(this.viewLifecycleOwner) {
+        barsViewModel.bars.observe(this.viewLifecycleOwner) {
             barListAdapter = BarsListAdapter(
                 it ?: mutableListOf(),
                 barListFragment.findNavController()
@@ -155,14 +155,14 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
             "Názov" -> pubs.sortedBy { it.name }
             "Počet ľudí" -> pubs.sortedBy { it.users }
             "Vzdialenosť" ->
-                if (viewmodel.currentLocation.value != null) {
+                if (barsViewModel.currentLocation.value != null) {
                     println("LOCATION NOT NULL")
-                    println(viewmodel.currentLocation.value)
+                    println(barsViewModel.currentLocation.value)
                     return pubs.sortedBy { distanceInMeters(
                         it.lat.toDouble(),
                         it.lon.toDouble(),
-                        viewmodel.currentLocation.value!!.latitude,
-                        viewmodel.currentLocation.value!!.longitude
+                        barsViewModel.currentLocation.value!!.latitude,
+                        barsViewModel.currentLocation.value!!.longitude
                     ) }
                 } else {
                     return pubs.sortedBy { it.name }
@@ -178,7 +178,7 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     }
 
     override fun onRefresh() {
-        viewmodel.refreshData()
+        barsViewModel.refreshData()
         swipeRefresh.isRefreshing = false
     }
 

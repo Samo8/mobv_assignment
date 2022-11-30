@@ -10,10 +10,12 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.example.assignment.R
 import com.example.assignment.databinding.FragmentRegistrationBinding
 import com.example.assignment.ui.viewmodels.AuthViewModel
 import com.example.assignment.common.Injection
 import com.example.assignment.common.PasswordHashService
+import com.example.assignment.common.PreferenceData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -48,13 +50,16 @@ class RegistrationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.apply {
+            lifecycleOwner = viewLifecycleOwner
+            model = authViewModel
+        }
+
         val userNameEditText: EditText = binding.editTextUsernameRegistration
         val passwordEditText: EditText = binding.editTextPasswordRegistration
         val passwordRepeatEditText: EditText = binding.editTextPasswordRepeatRegistration
 
-        val registrationButton: Button = binding.buttonRegister
-
-        registrationButton.setOnClickListener {
+        binding.buttonRegister.setOnClickListener {
             val username = userNameEditText.text.toString()
             val password = passwordEditText.text.toString()
             val passwordRepeat = passwordRepeatEditText.text.toString()
@@ -62,23 +67,23 @@ class RegistrationFragment : Fragment() {
             val passwordsMatch = validatePasswords(password, passwordRepeat)
 
             if (!passwordsMatch) {
-                Toast.makeText(context, "Heslá sa nezhodujú alebo sú prázdne", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.passwords_do_not_match), Toast.LENGTH_SHORT).show()
             } else {
-                CoroutineScope(Dispatchers.Main).launch {
-                    try {
-                        val hashedPassword = passwordHashService.getSHA512(password)
-                        authViewModel.signup(username, hashedPassword)
-
-                        findNavController().navigate(
-                            RegistrationFragmentDirections.actionRegistrationFragmentToBarsListFragment()
-                        )
-                    } catch (e: Exception) {
-                        Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
-                    }
-                }
+                val hashedPassword = passwordHashService.getSHA512(password)
+                authViewModel.signup(username, hashedPassword)
             }
         }
 
+        authViewModel.user.observe(viewLifecycleOwner){
+            it?.let {
+                PreferenceData.getInstance().putUserItem(requireContext(), it)
+                findNavController().popBackStack()
+            }
+        }
+
+        authViewModel.message.observe(this.viewLifecycleOwner) {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+        }
     }
 
     override fun onDestroyView() {

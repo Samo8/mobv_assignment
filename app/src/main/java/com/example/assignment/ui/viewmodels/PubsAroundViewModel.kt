@@ -1,9 +1,7 @@
 package com.example.assignment.ui.viewmodels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import android.location.Location
+import androidx.lifecycle.*
 import com.example.assignment.data.DataRepository
 import com.example.assignment.data.api.JoinPubRequest
 import com.example.assignment.ui.viewmodels.data.PubAround
@@ -12,19 +10,37 @@ import kotlinx.coroutines.launch
 class PubsAroundViewModel(
     private val repository: DataRepository
 ): ViewModel() {
-    private var _pubsAround: List<PubAround> = listOf()
+//    private var _pubsAround: List<PubAround> = listOf()
+    val pubsAround = MutableLiveData<List<PubAround>>()
+
     private var _selectedPubId: Long = 0
     private val _message = MutableLiveData<String>()
 
-    val pubsAround: List<PubAround>
-        get() = _pubsAround
+    val loading = MutableLiveData(false)
+
+//    val pubsAround: List<PubAround>
+//        get() = _pubsAround
     val selectedPubId: Long
         get() = _selectedPubId
     val message: LiveData<String>
         get() = _message
 
+    fun fetchPubsAround(location: Location) {
+        viewModelScope.launch {
+            println("BEFORE")
+            loading.postValue(true)
+            repository.fetchPubsAround(
+                location,
+                { _message.postValue(it) },
+                { pubsAround.postValue(it) }
+            )
+            loading.postValue(false)
+            println("AFTER")
+        }
+    }
+
     fun updatePubsAround(pubs: List<PubAround>) {
-        _pubsAround = pubs
+        pubsAround.postValue(pubs)
         _selectedPubId = if(pubs.isNotEmpty()) pubs.first().element.id else 0
     }
 
@@ -33,15 +49,16 @@ class PubsAroundViewModel(
     }
 
     fun getSelectedPub(): PubAround {
-        return _pubsAround.first{ _selectedPubId == it.element.id }
+        return pubsAround.value!!.first{ _selectedPubId == it.element.id }
     }
 
     fun joinPub(joinPubRequest: JoinPubRequest) {
         viewModelScope.launch {
             repository.joinPub(
-                joinPubRequest,
-                { _message.postValue(it) },
-                { _message.postValue(it) }
+                request = joinPubRequest,
+                onError = { _message.postValue(it) },
+                onSuccess = { _message.postValue(it) },
+                joining = true
             )
         }
     }

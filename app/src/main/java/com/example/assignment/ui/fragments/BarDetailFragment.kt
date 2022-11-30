@@ -75,7 +75,6 @@ class BarDetailFragment : Fragment() {
             )
         }
 
-
         buttonShowOnMap.visibility = View.INVISIBLE
         progressBarPubDetail.visibility = View.VISIBLE
 

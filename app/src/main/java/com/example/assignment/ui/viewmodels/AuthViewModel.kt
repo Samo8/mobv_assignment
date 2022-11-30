@@ -9,11 +9,11 @@ import kotlinx.coroutines.launch
 class AuthViewModel(
     private val repository: DataRepository
 ): ViewModel() {
-    private val _message = MutableLiveData<Evento<String>>()
-    val message: LiveData<Evento<String>>
+    private val _message = MutableLiveData<String>()
+    val message: LiveData<String>
         get() = _message
 
-    val user= MutableLiveData<AuthData>(null)
+    val user = MutableLiveData<AuthData>(null)
 
     val loading = MutableLiveData(false)
 
@@ -23,7 +23,7 @@ class AuthViewModel(
             repository.login(
                 name,
                 password,
-                { _message.postValue(Evento(it)) },
+                { _message.postValue(it) },
                 { user.postValue(it) }
             )
             loading.postValue(false)
@@ -35,12 +35,10 @@ class AuthViewModel(
             loading.postValue(true)
             repository.register(
                 name,password,
-                { _message.postValue(Evento(it)) },
+                { _message.postValue(it) },
                 { user.postValue(it) }
             )
             loading.postValue(false)
         }
     }
-
-    fun show(msg: String){ _message.postValue(Evento(msg))}
 }

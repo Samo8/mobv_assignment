@@ -23,19 +23,6 @@ object Server {
         pubDetailService = retrofit.create(PubDetailService::class.java)
     }
 
-    suspend fun fetchPubDetail(pubId: String): PubDetail = withContext(Dispatchers.IO) {
-        val response = pubDetailService.fetchPubDetail(
-            data = "[out:json];node(${pubId});out body;>;out skel;"
-        )
-        println("URL:" + response.raw().request().url())
-        if (response.isSuccessful) {
-            val body = response.body()!!
-            return@withContext body
-        } else {
-            throw Exception(response.errorBody()?.charStream()?.readText())
-        }
-    }
-
     suspend fun fetchPubsAround(
         location: Location
     ): List<Element> = withContext(Dispatchers.IO) {

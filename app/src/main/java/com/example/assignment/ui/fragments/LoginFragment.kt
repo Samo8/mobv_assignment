@@ -36,7 +36,7 @@ class LoginFragment : Fragment() {
         authViewModel = ViewModelProvider(
             this,
             Injection.provideViewModelFactory(requireContext())
-        ).get(AuthViewModel::class.java)
+        )[AuthViewModel::class.java]
     }
 
     override fun onCreateView(
@@ -59,6 +59,11 @@ class LoginFragment : Fragment() {
                 )
             }
             return
+        }
+
+        binding.apply {
+            lifecycleOwner = viewLifecycleOwner
+            model = authViewModel
         }
 
         val userNameEditText: EditText = binding.editTextUsernameLogin
@@ -85,15 +90,13 @@ class LoginFragment : Fragment() {
                     Toast.LENGTH_SHORT
                 ).show()
             } else {
-                CoroutineScope(Dispatchers.Main).launch {
-                    try {
-                        val hashedPassword = passwordHashService.getSHA512(password)
-                        authViewModel.login(username, hashedPassword)
-                    } catch (e: Exception) {
-                        Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
-                    }
-                }
+                val hashedPassword = passwordHashService.getSHA512(password)
+                authViewModel.login(username, hashedPassword)
             }
+        }
+
+        authViewModel.message.observe(this.viewLifecycleOwner) {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
         }
 
         authViewModel.user.observe(viewLifecycleOwner){

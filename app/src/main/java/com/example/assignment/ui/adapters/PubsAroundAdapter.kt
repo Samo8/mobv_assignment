@@ -9,12 +9,14 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.assignment.R
 import com.example.assignment.ui.viewmodels.PubsAroundViewModel
+import com.example.assignment.ui.viewmodels.data.PubAround
 
 class PubsAroundAdapter(
+    private val pubs: List<PubAround>,
     private val pubsAroundViewModel: PubsAroundViewModel,
 ) :
     RecyclerView.Adapter<PubsAroundAdapter.ViewHolder>() {
-    private val pubs = pubsAroundViewModel.pubsAround
+//    private val pubs = pubsAroundViewModel.pubsAround
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val textViewPubName: TextView

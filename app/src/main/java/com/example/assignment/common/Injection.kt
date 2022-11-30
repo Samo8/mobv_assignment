@@ -14,7 +14,11 @@ object Injection {
     }
 
     fun provideDataRepository(context: Context): DataRepository {
-        return DataRepository.getInstance(RestApi.create(context), provideCache(context))
+        return DataRepository.getInstance(
+            RestApi.create(context),
+            provideCache(context),
+            DistanceService()
+        )
     }
 
     fun provideViewModelFactory(context: Context): ViewModelProvider.Factory {

@@ -1,23 +1,30 @@
 package com.example.assignment.data
 
 import android.annotation.SuppressLint
+import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.assignment.auth.AuthData
+import com.example.assignment.common.DistanceService
 import com.example.assignment.common.PubData
 import com.example.assignment.data.api.*
 import com.example.assignment.data.database.LocalCache
 import com.example.assignment.pub_detail.model.PubDetail
 import com.example.assignment.data.database.model.PubRoom
+import com.example.assignment.ui.viewmodels.data.PubAround
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.acos
+import kotlin.math.cos
+import kotlin.math.sin
 
 class DataRepository private constructor(
     private val service: RestApi,
     private val cache: LocalCache,
+    private val distanceService: DistanceService,
 ){
     suspend fun register(
         name: String,
@@ -94,15 +101,12 @@ class DataRepository private constructor(
             val resp = service.addFriend(AddFriendRequest(friendName))
 
             if(resp.isSuccessful) {
-               println("Added friend successfully")
                 onSuccess("Added friend successfully")
             } else {
-                println("Failed to add friend, try again later.")
                 onError("Failed to add friend, try again later.")
             }
         } catch (ex: IOException) {
             ex.printStackTrace()
-            println("Add friend failed, check internet connection")
             onError("Add friend failed, check internet connection")
         } catch (ex: Exception) {
             ex.printStackTrace()
@@ -139,21 +143,34 @@ class DataRepository private constructor(
         request: JoinPubRequest,
         onError: (error: String) -> Unit,
         onSuccess: (error: String) -> Unit,
+        joining: Boolean,
     ): Unit = withContext(Dispatchers.IO) {
         try {
             val resp = service.joinPub(request)
 
             if(resp.isSuccessful) {
-                onSuccess("Joined pub successfully")
+                if (joining)
+                    onSuccess("Joined pub successfully")
+                else
+                    onSuccess("Left pub successfully")
             } else {
-                onError("Failed to join pub, try again later.")
+                if (joining)
+                    onError("Failed to join pub, try again later.")
+                else
+                    onError("Failed to left pub, try again later.")
             }
         } catch (ex: IOException) {
             ex.printStackTrace()
-            onError("Join pub failed, check internet connection")
+            if (joining)
+                onError("Join pub failed, check internet connection")
+            else
+                onError("Left pub failed, check internet connection")
         } catch (ex: Exception) {
             ex.printStackTrace()
-            onError("Join pub failed, error.")
+            if (joining)
+                onError("Join pub failed, error.")
+            else
+                onError("Left pub failed, error.")
         }
     }
 
@@ -164,7 +181,6 @@ class DataRepository private constructor(
             val resp = service.barList()
             if (resp.isSuccessful) {
                 resp.body()?.let { bars ->
-
                     val b = bars.map {
                         PubRoom(
                             id = it.bar_id,
@@ -191,6 +207,36 @@ class DataRepository private constructor(
         }
     }
 
+    suspend fun fetchPubsAround(
+        location: Location,
+        onError: (error: String) -> Unit,
+        onStatus: (success: List<PubAround>) -> Unit,
+    ) {
+        try {
+            val data = "[out:json];node(around:250,${location.latitude}, ${location.longitude});(node(around:250)[\"amenity\"~\"^pub\$|^bar\$|^restaurant\$|^cafe\$|^fast_food\$|^stripclub\$|^nightclub\$\"];);out body;>;out skel;"
+            val resp = service.fetchPubsAround(data)
+            if (resp.isSuccessful) {
+                resp.body()?.let { pubResponse ->
+                    val elem = pubResponse.elements.map {
+                        PubAround(
+                            element = it,
+                            distance = distanceService.distanceInMeters(location.latitude, location.longitude, it.lat, it.lon),
+                        )
+                    }.sortedBy { it.distance }
+                    onStatus(elem)
+                }
+            } else {
+                onError("Failed to fetch pub detail, try again later.")
+            }
+        } catch (ex: IOException) {
+            ex.printStackTrace()
+            onError("Pub detail failed, check internet connection")
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            onError("Pub detail failed")
+        }
+    }
+
     suspend fun fetchPubDetail(
         pubId: String,
         onError: (error: String) -> Unit,
@@ -199,8 +245,6 @@ class DataRepository private constructor(
         try {
             val data = "[out:json];node(${pubId});out body;>;out skel;"
             val resp = service.fetchPubDetail(data)
-            println(resp.raw().request().body())
-            println(resp.raw().request().headers())
             if (resp.isSuccessful) {
                 resp.body()?.let { pub ->
                     onStatus(pub)
@@ -228,10 +272,10 @@ class DataRepository private constructor(
         @Volatile
         private var INSTANCE: DataRepository? = null
 
-        fun getInstance(service: RestApi, cache: LocalCache): DataRepository =
+        fun getInstance(service: RestApi, cache: LocalCache, distanceService: DistanceService): DataRepository =
             INSTANCE ?: synchronized(this) {
                 INSTANCE
-                    ?: DataRepository(service, cache).also { INSTANCE = it }
+                    ?: DataRepository(service, cache, distanceService).also { INSTANCE = it }
             }
 
         @SuppressLint("SimpleDateFormat")
