@@ -5,11 +5,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.navigation.NavController
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.assignment.R
 import com.example.assignment.data.database.model.PubRoom
-import com.example.assignment.ui.fragments.BarsListFragment
 import com.example.assignment.ui.fragments.BarsListFragmentDirections
 
 class BarsListAdapter(
@@ -23,8 +21,8 @@ class BarsListAdapter(
         val textViewPeopleCount: TextView
 
         init {
-            textViewPubName = view.findViewById(R.id.textViewPubsAroundPubName)
-            textViewPeopleCount = view.findViewById(R.id.textViewPubsAroundDistance)
+            textViewPubName = view.findViewById(R.id.textViewPubItemName)
+            textViewPeopleCount = view.findViewById(R.id.textViewPubItemUsersCount)
         }
     }
 
@@ -38,9 +36,10 @@ class BarsListAdapter(
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         val pub = pubs[position]
         viewHolder.textViewPubName.text = pub.name
-        viewHolder.textViewPeopleCount.text = String.format("%s: %s",
-            "Počet ľudí", pub.users
-        )
+        viewHolder.textViewPeopleCount.text = pub.users
+//        viewHolder.textViewPeopleCount.text = String.format("%s: %s",
+//            "Počet ľudí", pub.users
+//        )
 
         viewHolder.textViewPubName.setOnClickListener {
             val action = BarsListFragmentDirections.actionBarsListFragmentToBarDetailFragment(

@@ -22,4 +22,12 @@
     <string name="join_pub">Pridať sa do podniku</string>
     <string name="open_registration">Otvor registráciu</string>
     <string name="passwords_do_not_match">Heslá sa nezhodujú alebo sú prázdne</string>
+    <string name="pubs_fragment_title">Podniky</string>
+    <string name="pub_detail_fragment_title">Detail podniku</string>
+    <string name="login_fragment_title">Prihlasenie</string>
+    <string name="registration_fragment_title">Registracia</string>
+    <string name="add_friend_fragment_title">Pridat kamarata</string>
+    <string name="friends_list_fragment_title">Zoznam kamaratov</string>
+    <string name="pubs_around_fragment_title">Podniky v okoli</string>
+    <string name="sign_out">Odhlasit</string>
 </resources>

@@ -17,17 +17,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.assignment.*
-import com.example.assignment.ui.viewmodels.BarsViewModel
+import com.example.assignment.common.DistanceService
 import com.example.assignment.common.Injection
+import com.example.assignment.common.PreferenceData
 import com.example.assignment.data.database.model.PubRoom
 import com.example.assignment.databinding.FragmentBarsListBinding
 import com.example.assignment.ui.adapters.BarsListAdapter
+import com.example.assignment.ui.viewmodels.BarsViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import kotlin.math.acos
-import kotlin.math.cos
-import kotlin.math.sin
-
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     private var _binding: FragmentBarsListBinding? = null
@@ -42,6 +41,8 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     private lateinit var swipeRefresh: SwipeRefreshLayout
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    private val distanceService = DistanceService()
 
     private val requestMultiplePermissions = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -86,7 +87,9 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         recyclerViewBarList = binding.recyclerViewBarsList
         recyclerViewBarList.layoutManager = LinearLayoutManager(context)
 
-        val floatingActionButtonSort = binding.floatingActionButtonSort
+        val floatingActionButtonAddFriend = binding.floatingActionButtonAddFriend
+        hideFloatingButtonOnScroll(floatingActionButtonAddFriend)
+
         val spinner: Spinner = binding.spinner
 
         barsViewModel.loading.observe(this.viewLifecycleOwner) {
@@ -117,10 +120,8 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                     ), barListFragment.findNavController())
                 recyclerViewBarList.adapter = barListAdapter
             }
-
             override fun onNothingSelected(p0: AdapterView<*>?) {}
         }
-
 
         swipeRefresh = binding.swipeRefresh
         swipeRefresh.setOnRefreshListener(this)
@@ -140,25 +141,37 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
             recyclerViewBarList.adapter = barListAdapter
         }
 
-        floatingActionButtonSort.setOnClickListener {
+        floatingActionButtonAddFriend.setOnClickListener {
             findNavController().navigate(
                 BarsListFragmentDirections.actionBarsListFragmentToAddFriendFragment()
             )
         }
     }
 
+    private fun hideFloatingButtonOnScroll(floatingActionButtonAddFriend: FloatingActionButton) {
+        recyclerViewBarList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerViewBarList, dx, dy)
+                if (dy > 0 && floatingActionButtonAddFriend.visibility == View.VISIBLE) {
+                    floatingActionButtonAddFriend.hide()
+                } else if (dy < 0 && floatingActionButtonAddFriend.visibility != View.VISIBLE) {
+                    floatingActionButtonAddFriend.show()
+                }
+            }
+        })
+    }
+
     private fun sortPubs(sortBy: String, pubs: List<PubRoom>?) : List<PubRoom> {
         if (pubs == null) {
-            return  mutableListOf()
+            return mutableListOf()
         }
         return when (sortBy) {
             "Názov" -> pubs.sortedBy { it.name }
             "Počet ľudí" -> pubs.sortedBy { it.users }
             "Vzdialenosť" ->
                 if (barsViewModel.currentLocation.value != null) {
-                    println("LOCATION NOT NULL")
                     println(barsViewModel.currentLocation.value)
-                    return pubs.sortedBy { distanceInMeters(
+                    return pubs.sortedBy { distanceService.distanceInMeters(
                         it.lat.toDouble(),
                         it.lon.toDouble(),
                         barsViewModel.currentLocation.value!!.latitude,
@@ -167,7 +180,6 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                 } else {
                     return pubs.sortedBy { it.name }
                 }
-
             else -> pubs
         }
     }
@@ -202,27 +214,16 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                         )
                         return true
                     }
+                    R.id.sign_out -> {
+                        PreferenceData.getInstance().clearData(context)
+                        findNavController().navigate(
+                            BarsListFragmentDirections.actionBarsListFragmentToLoginFragment()
+                        )
+                        return true
+                    }
                     else -> false
                 }
             }
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
-    }
-
-    private fun distanceInMeters (lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
-        val theta = lon1 - lon2
-        var dist = sin(deg2rad(lat1)) * sin(deg2rad(lat2)) + cos(deg2rad(lat1)) * cos(deg2rad(lat2)) * cos(deg2rad(theta))
-        dist = acos(dist)
-        dist = rad2deg(dist)
-        dist *= 60 * 1.1515
-        dist *= 1.609344
-        return dist * 1000
-    }
-
-    private fun deg2rad(deg: Double): Double {
-        return deg * Math.PI / 180.0
-    }
-
-    private fun rad2deg(rad: Double): Double {
-        return rad * 180.0 / Math.PI
     }
 }

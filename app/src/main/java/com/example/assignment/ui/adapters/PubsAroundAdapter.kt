@@ -23,7 +23,7 @@ class PubsAroundAdapter(
         val textViewPubDistance: TextView
 
         init {
-            textViewPubName = view.findViewById(R.id.textViewPubsAroundPubName)
+            textViewPubName = view.findViewById(R.id.textViewPubsAroundName)
             textViewPubDistance = view.findViewById(R.id.textViewPubsAroundDistance)
         }
     }

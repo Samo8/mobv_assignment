@@ -68,18 +68,22 @@ class PubsAroundFragment : Fragment() {
     private fun joinPub(animationView: LottieAnimationView) {
         val selectedPub = pubsAroundViewModel.getSelectedPub()
 
-        pubsAroundViewModel.joinPub(
-            JoinPubRequest(
-                id = selectedPub.element.id.toString(),
-                type = selectedPub.element.type,
-                lat = selectedPub.element.lat,
-                lon = selectedPub.element.lon,
-                name = selectedPub.element.tags.name,
+        if (selectedPub != null) {
+            pubsAroundViewModel.joinPub(
+                JoinPubRequest(
+                    id = selectedPub.element.id.toString(),
+                    type = selectedPub.element.type,
+                    lat = selectedPub.element.lat,
+                    lon = selectedPub.element.lon,
+                    name = selectedPub.element.tags.name,
+                )
             )
-        )
 
-        updateAnimationProgress(animationView, 75, 150)
-        createFence(selectedPub.element.lat, selectedPub.element.lon)
+            updateAnimationProgress(animationView, 75, 150)
+            createFence(selectedPub.element.lat, selectedPub.element.lon)
+        } else {
+            Toast.makeText(context, "Nemate zvoleny ziadny podnik", Toast.LENGTH_SHORT).show()
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)

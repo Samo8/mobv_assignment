@@ -12,4 +12,10 @@
         app:showAsAction="ifRoom"
         android:icon="@drawable/people"
         android:title="@string/friends_list" />
+
+    <item
+        android:id="@+id/sign_out"
+        android:icon="@drawable/common_full_open_on_phone"
+        android:title="@string/sign_out"
+        app:showAsAction="ifRoom" />
 </menu>

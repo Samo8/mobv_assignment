@@ -27,7 +27,6 @@ class PubsAroundViewModel(
 
     fun fetchPubsAround(location: Location) {
         viewModelScope.launch {
-            println("BEFORE")
             loading.postValue(true)
             repository.fetchPubsAround(
                 location,
@@ -35,21 +34,15 @@ class PubsAroundViewModel(
                 { pubsAround.postValue(it) }
             )
             loading.postValue(false)
-            println("AFTER")
         }
-    }
-
-    fun updatePubsAround(pubs: List<PubAround>) {
-        pubsAround.postValue(pubs)
-        _selectedPubId = if(pubs.isNotEmpty()) pubs.first().element.id else 0
     }
 
     fun updateIsSelected(pubId: Long) {
         _selectedPubId = pubId
     }
 
-    fun getSelectedPub(): PubAround {
-        return pubsAround.value!!.first{ _selectedPubId == it.element.id }
+    fun getSelectedPub(): PubAround? {
+        return pubsAround.value!!.firstOrNull{ _selectedPubId == it.element.id }
     }
 
     fun joinPub(joinPubRequest: JoinPubRequest) {
