@@ -1,6 +1,6 @@
 package com.example.assignment.data.api
 
-import com.example.assignment.pub_detail.model.Element
+import com.example.assignment.data.api.model.Element
 
 data class UserSignRequest(
     val name: String,

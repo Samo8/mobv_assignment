@@ -23,15 +23,15 @@
 
     <TextView
         android:id="@+id/textViewPubsAroundDistance"
-        android:background="@drawable/rounded_corner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
+        android:background="@drawable/rounded_corner"
         android:textColor="@color/white"
         android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintBottom_toBottomOf="@+id/textViewPubsAroundName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textViewPubsAroundName" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

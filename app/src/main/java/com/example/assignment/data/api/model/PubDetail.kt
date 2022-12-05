@@ -1,6 +1,5 @@
-package com.example.assignment.pub_detail.model
+package com.example.assignment.data.api.model
 
-import com.example.assignment.pub_detail.model.Element
 import kotlinx.serialization.SerialName
 
 class PubDetail(

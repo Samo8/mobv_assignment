@@ -27,20 +27,12 @@ import com.example.assignment.*
 import com.example.assignment.common.Injection
 import com.example.assignment.data.api.JoinPubRequest
 import com.example.assignment.databinding.FragmentPubsAroundBinding
-import com.example.assignment.pub_detail.Server
 import com.example.assignment.ui.adapters.PubsAroundAdapter
 import com.example.assignment.ui.viewmodels.PubsAroundViewModel
-import com.example.assignment.ui.viewmodels.data.PubAround
 import com.google.android.gms.location.*
 import com.google.android.gms.tasks.CancellationToken
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.OnTokenCanceledListener
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlin.math.acos
-import kotlin.math.cos
-import kotlin.math.sin
 
 class PubsAroundFragment : Fragment() {
     private var _binding: FragmentPubsAroundBinding? = null

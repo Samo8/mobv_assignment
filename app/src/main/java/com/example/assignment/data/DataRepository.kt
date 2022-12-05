@@ -3,13 +3,11 @@ package com.example.assignment.data
 import android.annotation.SuppressLint
 import android.location.Location
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import com.example.assignment.auth.AuthData
+import com.example.assignment.data.api.model.AuthData
 import com.example.assignment.common.DistanceService
-import com.example.assignment.common.PubData
 import com.example.assignment.data.api.*
 import com.example.assignment.data.database.LocalCache
-import com.example.assignment.pub_detail.model.PubDetail
+import com.example.assignment.data.api.model.PubDetail
 import com.example.assignment.data.database.model.PubRoom
 import com.example.assignment.ui.viewmodels.data.PubAround
 import kotlinx.coroutines.Dispatchers
@@ -17,9 +15,6 @@ import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.math.acos
-import kotlin.math.cos
-import kotlin.math.sin
 
 class DataRepository private constructor(
     private val service: RestApi,

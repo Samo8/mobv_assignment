@@ -1,11 +1,11 @@
 package com.example.assignment.data.api
 
 import android.content.Context
-import com.example.assignment.auth.AuthData
+import com.example.assignment.data.api.model.AuthData
 import com.example.assignment.common.PubData
 import com.example.assignment.data.api.interceptors.AuthInterceptor
 import com.example.assignment.data.api.interceptors.TokenAuthenticator
-import com.example.assignment.pub_detail.model.PubDetail
+import com.example.assignment.data.api.model.PubDetail
 import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Response

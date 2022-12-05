@@ -1,4 +1,4 @@
-package com.example.assignment.pub_detail.model
+package com.example.assignment.data.api.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

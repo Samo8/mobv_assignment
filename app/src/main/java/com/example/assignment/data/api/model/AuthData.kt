@@ -1,4 +1,4 @@
-package com.example.assignment.auth
+package com.example.assignment.data.api.model
 
 class AuthData(
     val uid: String,

@@ -4,22 +4,16 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
-import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.*
 import com.example.assignment.data.DataRepository
 import com.example.assignment.data.database.model.PubRoom
 import com.example.assignment.common.Evento
-import com.example.assignment.pub_detail.Server
-import com.example.assignment.ui.adapters.PubsAroundAdapter
-import com.example.assignment.ui.viewmodels.data.PubAround
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationToken
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.OnTokenCanceledListener
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class BarsViewModel(

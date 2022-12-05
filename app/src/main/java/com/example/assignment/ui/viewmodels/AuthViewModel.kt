@@ -1,8 +1,7 @@
 package com.example.assignment.ui.viewmodels
 
 import androidx.lifecycle.*
-import com.example.assignment.auth.AuthData
-import com.example.assignment.common.Evento
+import com.example.assignment.data.api.model.AuthData
 import com.example.assignment.data.DataRepository
 import kotlinx.coroutines.launch
 

@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.assignment.data.DataRepository
-import com.example.assignment.pub_detail.model.PubDetail
+import com.example.assignment.data.api.model.PubDetail
 import kotlinx.coroutines.launch
 
 class PubDetailViewModel(

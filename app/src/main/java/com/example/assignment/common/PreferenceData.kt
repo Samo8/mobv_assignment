@@ -2,7 +2,7 @@ package com.example.assignment.common
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.example.assignment.auth.AuthData
+import com.example.assignment.data.api.model.AuthData
 import com.google.gson.Gson
 
 class PreferenceData private constructor() {
