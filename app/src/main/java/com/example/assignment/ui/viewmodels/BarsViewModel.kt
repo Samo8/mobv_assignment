@@ -19,8 +19,8 @@ import kotlinx.coroutines.launch
 class BarsViewModel(
     private val repository: DataRepository
 ): ViewModel() {
-    private val _message = MutableLiveData<Evento<String>>()
-    val message: LiveData<Evento<String>>
+    private val _message = MutableLiveData<String>()
+    val message: LiveData<String>
         get() = _message
 
     val loading = MutableLiveData(false)
@@ -29,7 +29,7 @@ class BarsViewModel(
     var bars: LiveData<List<PubRoom>> =
         liveData {
             loading.postValue(true)
-            repository.fetchPubs { _message.postValue(Evento(it)) }
+            repository.fetchPubs { _message.postValue(it) }
             loading.postValue(false)
             emitSource(repository.dbPubs())
         }
@@ -40,7 +40,7 @@ class BarsViewModel(
     fun refreshData(){
         viewModelScope.launch {
             loading.postValue(true)
-            repository.fetchPubs { _message.postValue(Evento(it)) }
+            repository.fetchPubs { _message.postValue(it) }
             loading.postValue(false)
         }
     }

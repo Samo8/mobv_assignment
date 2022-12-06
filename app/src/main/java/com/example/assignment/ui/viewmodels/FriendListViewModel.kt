@@ -12,8 +12,8 @@ import kotlinx.coroutines.launch
 class FriendListViewModel(
     private val repository: DataRepository
 ): ViewModel() {
-    private val _message = MutableLiveData<Evento<String>>()
-    val message: LiveData<Evento<String>>
+    private val _message = MutableLiveData<String>()
+    val message: LiveData<String>
         get() = _message
 
     val friends = MutableLiveData<List<Friend>>(mutableListOf())
@@ -24,7 +24,7 @@ class FriendListViewModel(
         viewModelScope.launch {
             loading.postValue(true)
             repository.fetchFriends(
-                { _message.postValue(Evento(it)) },
+                { _message.postValue(it) },
                 { friends.postValue(it) }
             )
             loading.postValue(false)

@@ -1,7 +1,6 @@
 package com.example.assignment.ui.viewmodels
 
-import android.content.Context
-import android.widget.Toast
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,13 +13,21 @@ class PubDetailViewModel(
 ): ViewModel() {
     val user = MutableLiveData<PubDetail?>(null)
 
-    fun fetchPubDetail(pubId: String, context: Context?) {
+    val loading = MutableLiveData(false)
+
+    private val _message = MutableLiveData<String>()
+    val message: LiveData<String>
+        get() = _message
+
+    fun fetchPubDetail(pubId: String) {
         viewModelScope.launch {
+            loading.postValue(true)
             repository.fetchPubDetail(
                 pubId,
-                { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() },
+                { _message.postValue(it) },
                 { user.postValue(it) }
             )
+            loading.postValue(false)
         }
     }
 }

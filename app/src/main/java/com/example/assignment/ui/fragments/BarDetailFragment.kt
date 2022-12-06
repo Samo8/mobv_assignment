@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.example.assignment.R
 import com.example.assignment.databinding.FragmentBarDetailBinding
@@ -57,12 +58,17 @@ class BarDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.apply {
+            lifecycleOwner = viewLifecycleOwner
+            model = pubDetailViewModel
+        }
+
+        pubDetailViewModel.fetchPubDetail(pubId!!)
+
         val textViewBarName = binding.tvBarName
         val textViewStreet = binding.tvStreet
         val textViewCapacity = binding.tvCapacity
         val textViewPeoplePresentCount = binding.textViewPeoplePresentCount
-        val buttonShowOnMap = binding.buttonShowOnMap
-        val progressBarPubDetail = binding.progressBarPubDetail
 
         barsViewModel.bars.observe(this.viewLifecycleOwner) {
             val foundPub = it.first { pub ->
@@ -75,10 +81,11 @@ class BarDetailFragment : Fragment() {
             )
         }
 
-        buttonShowOnMap.visibility = View.INVISIBLE
-        progressBarPubDetail.visibility = View.VISIBLE
+        barsViewModel.message.observe(viewLifecycleOwner) {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+        }
 
-        buttonShowOnMap.setOnClickListener {
+        binding.buttonShowOnMap.setOnClickListener {
             if (lat != null && lon != null) {
                 val mapUri: Uri = Uri.parse("geo:10,0?q=${lat},${lon}")
                 val mapIntent = Intent(Intent.ACTION_VIEW, mapUri)
@@ -87,8 +94,6 @@ class BarDetailFragment : Fragment() {
             }
         }
 
-        pubDetailViewModel.fetchPubDetail(pubId!!, context)
-
         pubDetailViewModel.user.observe(viewLifecycleOwner) {
             if (it != null) {
                 val pubDetail = it.elements.first()
@@ -96,15 +101,9 @@ class BarDetailFragment : Fragment() {
                 lat = pubDetail.lat
                 lon = pubDetail.lon
 
-                buttonShowOnMap.visibility = View.VISIBLE
-                progressBarPubDetail.visibility = View.GONE
-
                 textViewBarName.text = pubDetail.tags.name
                 textViewStreet.text = pubDetail.tags.addrStreet
                 textViewCapacity.text = pubDetail.tags.capacity
-            } else {
-                buttonShowOnMap.visibility = View.GONE
-                progressBarPubDetail.visibility = View.VISIBLE
             }
         }
     }

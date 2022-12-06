@@ -5,10 +5,12 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.assignment.R
 import com.example.assignment.ui.viewmodels.FriendListViewModel
 import com.example.assignment.ui.adapters.FriendsListAdapter
 import com.example.assignment.databinding.FragmentFriendsListBinding
@@ -43,14 +45,23 @@ class FriendsListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.apply {
+            lifecycleOwner = viewLifecycleOwner
+            model = friendListViewModel
+        }
+
         recyclerViewFriends = binding.recyclerViewFriendsList
         recyclerViewFriends.layoutManager = LinearLayoutManager(context)
 
         friendListViewModel.fetchFriends()
 
-        friendListViewModel.friends.observe(this.viewLifecycleOwner) {
-            friendsListAdapter = FriendsListAdapter(it, this.findNavController())
+        friendListViewModel.friends.observe(viewLifecycleOwner) {
+            friendsListAdapter = FriendsListAdapter(it, findNavController())
             recyclerViewFriends.adapter = friendsListAdapter
+        }
+
+        friendListViewModel.message.observe(viewLifecycleOwner) {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
         }
     }
 }

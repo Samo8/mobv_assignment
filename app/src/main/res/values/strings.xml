@@ -32,4 +32,5 @@
     <string name="sign_out">Odhlásiť</string>
     <string name="no_pub_selected">Nemáte zvolený žiadny podnik</string>
     <string name="empty_name">Meno je prázdne</string>
+    <string name="no_friends_found">Neboli nájdení žiadni kamaráti</string>
 </resources>

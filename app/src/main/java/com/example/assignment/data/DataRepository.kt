@@ -25,7 +25,9 @@ class DataRepository private constructor(
         onStatus: (success: AuthData?) -> Unit
     ) {
         try {
-            val resp = service.userCreate(UserSignRequest(name = name, password = password))
+            val resp = service.userCreate(
+                UserSignRequest(name = name, password = password)
+            )
             if (resp.isSuccessful) {
                 resp.body()?.let { user ->
                     if (user.uid == "-1"){
@@ -102,7 +104,6 @@ class DataRepository private constructor(
             onError("Add friend failed, check internet connection")
         } catch (ex: Exception) {
             ex.printStackTrace()
-            println("Add friend failed, error.")
             onError("Add friend failed, error.")
         }
     }

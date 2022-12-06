@@ -14,13 +14,17 @@ class AddFriendViewModel(
     val message: LiveData<String>
         get() = _message
 
+    val loading = MutableLiveData(false)
+
     fun addFriend(friendName: String) {
         viewModelScope.launch {
+            loading.postValue(true)
             repository.addFriend(
                 friendName = friendName,
                 onError = { _message.postValue(it) },
                 onSuccess = { _message.postValue(it) }
             )
+            loading.postValue(false)
         }
     }
 }
