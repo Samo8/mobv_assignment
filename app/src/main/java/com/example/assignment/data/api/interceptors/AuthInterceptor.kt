@@ -10,7 +10,7 @@ class AuthInterceptor(val context: Context) : Interceptor {
         synchronized(this) {
             val request = chain.request()
                 .newBuilder()
-                .addHeader("User-Agent", "Mobv-Android/1.0.0")
+                .addHeader("User-Agent", "MOBV-Android/1.0.0")
                 .addHeader("Accept", "application/json")
                 .addHeader("Content-Type", "application/json")
 
@@ -32,5 +32,4 @@ class AuthInterceptor(val context: Context) : Interceptor {
             return chain.proceed(request.build())
         }
     }
-
 }

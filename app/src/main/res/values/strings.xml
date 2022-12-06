@@ -30,4 +30,6 @@
     <string name="friends_list_fragment_title">Zoznam kamarátov</string>
     <string name="pubs_around_fragment_title">Podniky v okoli</string>
     <string name="sign_out">Odhlásiť</string>
+    <string name="no_pub_selected">Nemáte zvolený žiadny podnik</string>
+    <string name="empty_name">Meno je prázdne</string>
 </resources>

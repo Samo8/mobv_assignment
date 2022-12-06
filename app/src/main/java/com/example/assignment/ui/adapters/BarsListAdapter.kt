@@ -37,9 +37,6 @@ class BarsListAdapter(
         val pub = pubs[position]
         viewHolder.textViewPubName.text = pub.name
         viewHolder.textViewPeopleCount.text = pub.users
-//        viewHolder.textViewPeopleCount.text = String.format("%s: %s",
-//            "Počet ľudí", pub.users
-//        )
 
         viewHolder.textViewPubName.setOnClickListener {
             val action = BarsListFragmentDirections.actionBarsListFragmentToBarDetailFragment(

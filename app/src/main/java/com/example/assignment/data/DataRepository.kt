@@ -1,6 +1,5 @@
 package com.example.assignment.data
 
-import android.annotation.SuppressLint
 import android.location.Location
 import androidx.lifecycle.LiveData
 import com.example.assignment.data.api.model.AuthData
@@ -13,8 +12,6 @@ import com.example.assignment.ui.viewmodels.data.PubAround
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.*
 
 class DataRepository private constructor(
     private val service: RestApi,
@@ -272,16 +269,5 @@ class DataRepository private constructor(
                 INSTANCE
                     ?: DataRepository(service, cache, distanceService).also { INSTANCE = it }
             }
-
-        @SuppressLint("SimpleDateFormat")
-        fun dateToTimeStamp(date: String): Long {
-            return SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(date)?.time ?: 0L
-        }
-
-        @SuppressLint("SimpleDateFormat")
-        fun timestampToDate(time: Long): String{
-            val netDate = Date(time*1000)
-            return SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(netDate)
-        }
     }
 }

@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
 import com.example.assignment.*
+import com.example.assignment.R
 import com.example.assignment.common.Injection
 import com.example.assignment.data.api.JoinPubRequest
 import com.example.assignment.databinding.FragmentPubsAroundBinding
@@ -74,7 +75,7 @@ class PubsAroundFragment : Fragment() {
             updateAnimationProgress(animationView, 75, 150)
             createFence(selectedPub.element.lat, selectedPub.element.lon)
         } else {
-            Toast.makeText(context, "Nemate zvoleny ziadny podnik", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.no_pub_selected), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -89,8 +90,6 @@ class PubsAroundFragment : Fragment() {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
         geofencingClient = LocationServices.getGeofencingClient(requireActivity())
-
-//        pubsAroundListAdapter = PubsAroundAdapter(pubsAroundViewModel)
     }
 
     override fun onCreateView(
@@ -107,7 +106,6 @@ class PubsAroundFragment : Fragment() {
 
         recyclerViewPubsAround = binding.recyclerViewPubsAround
         recyclerViewPubsAround.layoutManager = LinearLayoutManager(context)
-//        recyclerViewPubsAround.adapter = pubsAroundListAdapter
 
         val progressBar: ProgressBar = binding.progressBarPubsAround
         val joinPubButton: Button = binding.buttonJoinPub
@@ -123,11 +121,11 @@ class PubsAroundFragment : Fragment() {
             )
         }
 
-        pubsAroundViewModel.loading.observe(this.viewLifecycleOwner) {
-            progressBar.visibility = if(it) View.VISIBLE else View.INVISIBLE
+        pubsAroundViewModel.loading.observe(viewLifecycleOwner) {
+            progressBar.visibility = if (it) View.VISIBLE else View.INVISIBLE
         }
 
-        pubsAroundViewModel.pubsAround.observe(this.viewLifecycleOwner) {
+        pubsAroundViewModel.pubsAround.observe(viewLifecycleOwner) {
             pubsAroundListAdapter = PubsAroundAdapter(
                 it,
                 pubsAroundViewModel
@@ -162,25 +160,6 @@ class PubsAroundFragment : Fragment() {
                     val lon = location.longitude
 
                     pubsAroundViewModel.fetchPubsAround(location)
-
-//                    CoroutineScope(Dispatchers.Main).launch {
-//                        val response = Server.fetchPubsAround(location)
-//                        println(response)
-//
-//                        val pubs = response.map {
-//                            PubAround(
-//                                element = it,
-//                                distance = distanceInMeters(lat, lon, it.lat, it.lon),
-//                            )
-//                        }.sortedBy { it.distance }
-//                        pubsAroundViewModel.updatePubsAround(pubs)
-//
-//                        pubsAroundListAdapter = PubsAroundAdapter(pubsAroundViewModel)
-//                        recyclerViewPubsAround.adapter = pubsAroundListAdapter
-//
-//                        progressBar.visibility = View.GONE
-//                        updateAnimationProgress(animationView, 0, 75)
-//                    }
                 }
             }
     }
@@ -191,7 +170,6 @@ class PubsAroundFragment : Fragment() {
             requireContext(), 0,
             Intent(requireContext(), GeofenceBroadcastReceiver::class.java),
             FLAG_UPDATE_CURRENT
-//            PendingIntent.FLAG_MUTABLE
         )
 
         val request = GeofencingRequest.Builder().apply {
@@ -215,10 +193,10 @@ class PubsAroundFragment : Fragment() {
         }
         geofencingClient.addGeofences(request, geofenceIntent).run {
             addOnSuccessListener {
-                Toast.makeText(context, "Geofence(s) added", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Geofence added", Toast.LENGTH_LONG).show()
             }
             addOnFailureListener {
-                Toast.makeText(context, "Failed to add geofence(s)", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Failed to add geofence", Toast.LENGTH_SHORT).show()
                 it.printStackTrace()
             }
         }
@@ -232,6 +210,5 @@ class PubsAroundFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
-//        pubsAroundViewModel.updatePubsAround(listOf())
     }
 }

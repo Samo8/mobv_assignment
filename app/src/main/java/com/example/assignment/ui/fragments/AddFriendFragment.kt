@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
+import com.example.assignment.R
 import com.example.assignment.databinding.FragmentAddFriendBinding
 import com.example.assignment.ui.viewmodels.AddFriendViewModel
 import com.example.assignment.common.Injection
@@ -51,7 +52,7 @@ class AddFriendFragment : Fragment() {
         binding.buttonAddFriend.setOnClickListener {
             val friendName = binding.editTextFriendName.text.toString()
             if (friendName.isEmpty()) {
-                Toast.makeText(context, "Meno je prazdne", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.empty_name), Toast.LENGTH_SHORT).show()
             } else {
                 addFriendViewModel.addFriend(friendName)
             }

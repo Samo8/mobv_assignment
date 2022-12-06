@@ -16,11 +16,6 @@ import com.example.assignment.common.PasswordHashService
 import com.example.assignment.common.PreferenceData
 import com.example.assignment.databinding.FragmentLoginBinding
 import com.example.assignment.ui.viewmodels.AuthViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.math.BigInteger
-import java.security.MessageDigest
 
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
@@ -95,7 +90,7 @@ class LoginFragment : Fragment() {
             }
         }
 
-        authViewModel.message.observe(this.viewLifecycleOwner) {
+        authViewModel.message.observe(viewLifecycleOwner) {
             Toast.makeText(context, it, Toast.LENGTH_LONG).show()
         }
 

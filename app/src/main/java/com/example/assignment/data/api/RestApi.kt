@@ -14,7 +14,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
 
 interface RestApi {
-
     @GET("https://overpass-api.de/api/interpreter?")
     suspend fun fetchPubDetail(
         @Query("data") data: String,

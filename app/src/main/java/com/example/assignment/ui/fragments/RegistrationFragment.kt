@@ -81,7 +81,7 @@ class RegistrationFragment : Fragment() {
             }
         }
 
-        authViewModel.message.observe(this.viewLifecycleOwner) {
+        authViewModel.message.observe(viewLifecycleOwner) {
             Toast.makeText(context, it, Toast.LENGTH_LONG).show()
         }
     }
