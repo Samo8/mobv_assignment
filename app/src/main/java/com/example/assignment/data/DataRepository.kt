@@ -120,7 +120,7 @@ class DataRepository private constructor(
                     onStatus(user)
                 }
             } else {
-                onError("Failed to login, try again later.")
+                onError("Failed to fetch friends, try again later.")
             }
         } catch (ex: IOException) {
             ex.printStackTrace()

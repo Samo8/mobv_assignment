@@ -85,14 +85,7 @@ class BarDetailFragment : Fragment() {
             Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
         }
 
-        binding.buttonShowOnMap.setOnClickListener {
-            if (lat != null && lon != null) {
-                val mapUri: Uri = Uri.parse("geo:10,0?q=${lat},${lon}")
-                val mapIntent = Intent(Intent.ACTION_VIEW, mapUri)
-                mapIntent.setPackage("com.google.android.apps.maps")
-                startActivity(mapIntent)
-            }
-        }
+        binding.buttonShowOnMap.setOnClickListener { openOnMap() }
 
         pubDetailViewModel.user.observe(viewLifecycleOwner) {
             if (it != null) {
@@ -105,6 +98,15 @@ class BarDetailFragment : Fragment() {
                 textViewStreet.text = pubDetail.tags.addrStreet
                 textViewCapacity.text = pubDetail.tags.capacity
             }
+        }
+    }
+
+    private fun openOnMap() {
+        if (lat != null && lon != null) {
+            val mapUri: Uri = Uri.parse("geo:10,0?q=${lat},${lon}")
+            val mapIntent = Intent(Intent.ACTION_VIEW, mapUri)
+            mapIntent.setPackage("com.google.android.apps.maps")
+            startActivity(mapIntent)
         }
     }
 

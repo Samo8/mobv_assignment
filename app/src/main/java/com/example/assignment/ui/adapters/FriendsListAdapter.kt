@@ -39,10 +39,13 @@ RecyclerView.Adapter<FriendsListAdapter.ViewHolder>() {
         viewHolder.textViewFriendBarName.text = friend.bar_name
 
         viewHolder.itemView.setOnClickListener {
-            val action = FriendsListFragmentDirections.actionFriendsListFragmentToBarDetailFragment(
-                id = friend.bar_id!!,
-            )
-            navController.navigate(action)
+            if (friend.bar_id != null) {
+                val action =
+                    FriendsListFragmentDirections.actionFriendsListFragmentToBarDetailFragment(
+                        id = friend.bar_id,
+                    )
+                navController.navigate(action)
+            }
         }
     }
 

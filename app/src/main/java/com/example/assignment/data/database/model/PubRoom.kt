@@ -19,16 +19,4 @@ data class PubRoom(
     val users: String,
     @ColumnInfo
     val lastUpdate: String,
-) {
-    fun toPubData(): PubData {
-        return PubData(
-            bar_id = id,
-            bar_name = name,
-            lat = lat,
-            lon = lon,
-            bar_type = type,
-            users = users,
-            last_update = lastUpdate,
-        )
-    }
-}
+)

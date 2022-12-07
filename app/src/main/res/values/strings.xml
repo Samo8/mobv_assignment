@@ -15,7 +15,7 @@
     <string name="login">Prihlásiť</string>
     <string name="user_name_or_password_empty">Používateľské meno alebo heslo sú prázdne</string>
     <string name="firend_name">Meno kamaráta</string>
-    <string name="add_friend">Pridat kamaráta</string>
+    <string name="add_friend">Pridať kamaráta</string>
     <string name="people_count">Počet ľudí</string>
     <string name="friends_list">Zoznam kamarátov</string>
     <string name="pubs_around">Podniky naokolo</string>
@@ -28,7 +28,7 @@
     <string name="registration_fragment_title">Registrácia</string>
     <string name="add_friend_fragment_title">Pridať kamaráta</string>
     <string name="friends_list_fragment_title">Zoznam kamarátov</string>
-    <string name="pubs_around_fragment_title">Podniky v okoli</string>
+    <string name="pubs_around_fragment_title">Podniky v okolí</string>
     <string name="sign_out">Odhlásiť</string>
     <string name="no_pub_selected">Nemáte zvolený žiadny podnik</string>
     <string name="empty_name">Meno je prázdne</string>

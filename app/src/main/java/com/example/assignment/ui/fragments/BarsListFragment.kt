@@ -28,6 +28,12 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
+
+const val chooseSort =  "Zvoľte zoradenie"
+const val nameSort = "Názov"
+const val countSort = "Počet ľudí"
+const val distanceSort = "Vzdialenosť"
+
 class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     private var _binding: FragmentBarsListBinding? = null
     private val binding get() = _binding!!
@@ -105,10 +111,10 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         )
 
         val options = arrayOf(
-            "Zvoľte zoradenie",
-            "Názov",
-            "Počet ľudí",
-            "Vzdialenosť"
+            chooseSort,
+            nameSort,
+            countSort,
+            distanceSort,
         )
         spinner.adapter = ArrayAdapter(requireActivity(), android.R.layout.simple_list_item_1, options)
         spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
@@ -166,9 +172,9 @@ class BarsListFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
             return mutableListOf()
         }
         return when (sortBy) {
-            "Názov" -> pubs.sortedBy { it.name }
-            "Počet ľudí" -> pubs.sortedBy { it.users }
-            "Vzdialenosť" ->
+            nameSort -> pubs.sortedBy { it.name }
+            countSort -> pubs.sortedBy { it.users }
+            distanceSort ->
                 if (barsViewModel.currentLocation.value != null) {
                     println(barsViewModel.currentLocation.value)
                     return pubs.sortedBy { distanceService.distanceInMeters(
