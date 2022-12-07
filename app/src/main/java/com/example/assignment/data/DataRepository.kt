@@ -110,7 +110,7 @@ class DataRepository private constructor(
 
     suspend fun fetchFriends(
         onError: (error: String) -> Unit,
-        onStatus: (success: List<Friend>?) -> Unit
+        onStatus: (success: List<Friend>) -> Unit
     )= withContext(Dispatchers.IO) {
         try {
             val resp = service.fetchFriends()
@@ -121,7 +121,6 @@ class DataRepository private constructor(
                 }
             } else {
                 onError("Failed to login, try again later.")
-                onStatus(null)
             }
         } catch (ex: IOException) {
             ex.printStackTrace()
